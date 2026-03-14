@@ -31,7 +31,7 @@ export interface RunSummary {
   filters: {
     layer?: number | null;
     service?: string | null;
-    variant?: string | null;
+    variant?: ("cli" | "mcp") | null;
     id?: string | null;
   };
   totalTasks: number;

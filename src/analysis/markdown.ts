@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, readdirSync, mkdirSync } from "fs";
 import { resolve } from "path";
 import { loadTasks } from "../tasks/loader.js";
-import { RESULTS_DIR } from "../config.js";
+import { RESULTS_DIR, formatCost } from "../config.js";
 import type { TaskResult } from "../runners/types.js";
 
 const args = process.argv.slice(2);
@@ -98,7 +98,7 @@ for (const [taskId, pair] of pairs) {
   }
 
   lines.push(
-    `| ${taskId} | ${task.service} | $${cliCost.toFixed(4)} | $${mcpCost.toFixed(4)} | ${cliTokens} | ${mcpTokens} | ${cliMs}ms | ${mcpMs}ms | ${winner} |`
+    `| ${taskId} | ${task.service} | ${formatCost(cliCost || undefined, "$0.0000")} | ${formatCost(mcpCost || undefined, "$0.0000")} | ${cliTokens} | ${mcpTokens} | ${cliMs}ms | ${mcpMs}ms | ${winner} |`
   );
 }
 
@@ -106,8 +106,8 @@ lines.push("");
 
 // Totals
 h(2, "Totals");
-lines.push(`- **CLI total cost:** $${cliTotalCost.toFixed(4)}`);
-lines.push(`- **MCP total cost:** $${mcpTotalCost.toFixed(4)}`);
+lines.push(`- **CLI total cost:** ${formatCost(cliTotalCost)}`);
+lines.push(`- **MCP total cost:** ${formatCost(mcpTotalCost)}`);
 lines.push(
   `- **Cost ratio:** MCP is ${(mcpTotalCost / (cliTotalCost || 1)).toFixed(2)}x CLI`
 );
@@ -133,8 +133,8 @@ for (const service of services) {
     sMcp += pair.mcp?.usage?.totalCostUsd ?? 0;
   }
 
-  lines.push(`- CLI cost: $${sCli.toFixed(4)}`);
-  lines.push(`- MCP cost: $${sMcp.toFixed(4)}`);
+  lines.push(`- CLI cost: ${formatCost(sCli)}`);
+  lines.push(`- MCP cost: ${formatCost(sMcp)}`);
   lines.push(
     `- Ratio: MCP is ${(sMcp / (sCli || 1)).toFixed(2)}x CLI`
   );

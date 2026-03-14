@@ -18,15 +18,12 @@ const taskMap = new Map(tasks.map((t) => [t.id, t]));
 
 // Load all result files
 const files = readdirSync(runDir).filter(
-  (f) => f.endsWith(".json") && !f.startsWith("_")
+  (f) => f.endsWith(".json") && !f.startsWith("_") && !f.includes("_steps")
 );
 
-const results: TaskResult[] = [];
-for (const file of files) {
-  if (file.includes("_steps")) continue;
-  const raw = readFileSync(resolve(runDir, file), "utf-8");
-  results.push(JSON.parse(raw) as TaskResult);
-}
+const results: TaskResult[] = files.map(
+  (f) => JSON.parse(readFileSync(resolve(runDir, f), "utf-8")) as TaskResult
+);
 
 console.log(`\nScoring run: ${runId}`);
 console.log(`Results found: ${results.length}\n`);
@@ -47,14 +44,7 @@ for (const result of results) {
       result.score = 0.0;
     }
   } else {
-    // Manual scoring — prompt for input
-    console.log(`--- [${result.taskId}] ${task.description} [${result.variant}] ---`);
-    console.log(`Output preview: ${result.output.slice(0, 300)}...`);
-    console.log(`Success: ${result.success} | Duration: ${result.durationMs}ms`);
-    console.log(`Score (1-5, or press enter to skip):`);
-
-    // For non-interactive runs, leave score undefined
-    // In interactive mode, you'd read from stdin here
+    // Manual scoring not yet implemented — leave score undefined
     result.score = undefined;
   }
 }

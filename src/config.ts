@@ -15,12 +15,14 @@ export function loadFixtures(): Record<string, string> {
 export function resolvePrompt(
   template: string,
   fixtures: Record<string, string>,
-  runId: string
 ): string {
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => {
-    if (key === "RUN_ID") return runId;
     return fixtures[key] ?? `{{${key}}}`;
   });
+}
+
+export function formatCost(usd?: number, fallback = "N/A"): string {
+  return usd != null ? `$${usd.toFixed(4)}` : fallback;
 }
 
 export function generateRunId(): string {

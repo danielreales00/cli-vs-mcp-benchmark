@@ -2,7 +2,7 @@ import { execFileSync } from "child_process";
 import { writeFileSync, mkdirSync } from "fs";
 import { resolve } from "path";
 import { loadTasks } from "../tasks/loader.js";
-import { loadFixtures, resolvePrompt, generateRunId, RESULTS_DIR } from "../config.js";
+import { loadFixtures, resolvePrompt, generateRunId, formatCost, RESULTS_DIR } from "../config.js";
 import type { TaskDefinition } from "../tasks/types.js";
 import type { TaskResult, RunSummary } from "./types.js";
 import { parseFilters, applyFilters, getVariantsForTask } from "./filters.js";
@@ -64,7 +64,6 @@ function runClaudeTask(
       timeout: timeoutMs,
       encoding: "utf-8",
       maxBuffer: 10 * 1024 * 1024,
-      env: process.env,
     });
     const durationMs = Math.round(performance.now() - start);
     const output = extractResult(stdout);
@@ -90,12 +89,11 @@ function runTask(
   task: TaskDefinition,
   variant: "cli" | "mcp",
   fixtures: Record<string, string>,
-  runId: string
 ): TaskResult | null {
   const variantDef = task.variants[variant];
   if (!variantDef) return null;
 
-  const prompt = resolvePrompt(variantDef.prompt, fixtures, runId);
+  const prompt = resolvePrompt(variantDef.prompt, fixtures);
   const allowed = variantDef.allowedTools ?? [];
   const disallowed = variantDef.disallowedTools ?? [];
 
@@ -127,6 +125,7 @@ const filters = parseFilters(process.argv.slice(2));
 const tasks = applyFilters(loadTasks(), filters);
 const fixtures = loadFixtures();
 const runId = generateRunId();
+fixtures["RUN_ID"] = runId;
 
 mkdirSync(resolve(RESULTS_DIR, runId), { recursive: true });
 
@@ -140,7 +139,7 @@ for (const task of tasks) {
   console.log(`[${task.id}] ${task.description}`);
 
   for (const variant of getVariantsForTask(task, filters.variant)) {
-    const result = runTask(task, variant, fixtures, runId);
+    const result = runTask(task, variant, fixtures);
     if (result) {
       results.push(result);
 
@@ -150,12 +149,9 @@ for (const task of tasks) {
         JSON.stringify(result, null, 2)
       );
 
-      const cost = result.usage.totalCostUsd
-        ? `$${result.usage.totalCostUsd.toFixed(4)}`
-        : "N/A";
       const status = result.success ? "OK" : "FAIL";
       console.log(
-        `    ${status} | ${result.durationMs}ms | ${result.usage.inputTokens}in/${result.usage.outputTokens}out | ${cost}`
+        `    ${status} | ${result.durationMs}ms | ${result.usage.inputTokens}in/${result.usage.outputTokens}out | ${formatCost(result.usage.totalCostUsd)}`
       );
     }
   }

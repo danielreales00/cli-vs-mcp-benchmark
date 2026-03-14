@@ -10,7 +10,7 @@ import type {
 import { writeFileSync, mkdirSync } from "fs";
 import { resolve } from "path";
 import { loadTasks } from "../tasks/loader.js";
-import { loadFixtures, resolvePrompt, generateRunId, RESULTS_DIR } from "../config.js";
+import { loadFixtures, resolvePrompt, generateRunId, formatCost, RESULTS_DIR } from "../config.js";
 import type { TaskDefinition } from "../tasks/types.js";
 import type { TaskResult, ToolCallLog, RunSummary } from "./types.js";
 import { parseFilters, applyFilters, getVariantsForTask } from "./filters.js";
@@ -32,11 +32,10 @@ function buildMcpServers(
   const servers: Record<string, McpServerConfig> = {};
 
   // Determine which MCP servers we need based on tool prefixes
+  // claude.ai built-in servers (Notion, Slack) need no config
   for (const tool of tools) {
-    if (tool.startsWith("mcp__claude_ai_Notion__")) {
-      // Notion is handled by the claude.ai built-in — no server config needed
-    } else if (tool.startsWith("mcp__claude_ai_Slack__")) {
-      // Slack is handled by the claude.ai built-in — no server config needed
+    if (tool.startsWith("mcp__claude_ai_")) {
+      continue;
     } else if (tool.startsWith("mcp__github__")) {
       servers["github"] = {
         type: "http",
@@ -63,12 +62,11 @@ async function runSdkTask(
   task: TaskDefinition,
   variant: "cli" | "mcp",
   fixtures: Record<string, string>,
-  runId: string
 ): Promise<TaskResult | null> {
   const variantDef = task.variants[variant];
   if (!variantDef) return null;
 
-  const prompt = resolvePrompt(variantDef.prompt, fixtures, runId);
+  const prompt = resolvePrompt(variantDef.prompt, fixtures);
   const steps: StepLog[] = [];
   const toolCalls: ToolCallLog[] = [];
 
@@ -191,6 +189,7 @@ const filters = parseFilters(process.argv.slice(2));
 const tasks = applyFilters(loadTasks(), { ...filters, layer: 1 });
 const fixtures = loadFixtures();
 const runId = `sdk_${generateRunId()}`;
+fixtures["RUN_ID"] = runId;
 
 mkdirSync(resolve(RESULTS_DIR, runId), { recursive: true });
 
@@ -204,9 +203,7 @@ for (const task of tasks) {
   console.log(`[${task.id}] ${task.description}`);
 
   for (const variant of getVariantsForTask(task, filters.variant)) {
-    if (!task.variants[variant]) continue;
-
-    const result = await runSdkTask(task, variant, fixtures, runId);
+    const result = await runSdkTask(task, variant, fixtures);
     if (result) {
       results.push(result);
 
@@ -216,12 +213,9 @@ for (const task of tasks) {
         JSON.stringify(result, null, 2)
       );
 
-      const cost = result.usage.totalCostUsd
-        ? `$${result.usage.totalCostUsd.toFixed(4)}`
-        : "N/A";
       const status = result.success ? "OK" : "FAIL";
       console.log(
-        `    ${status} | ${result.durationMs}ms | ${result.usage.inputTokens}in/${result.usage.outputTokens}out | ${cost} | ${result.toolCalls.length} tool calls`
+        `    ${status} | ${result.durationMs}ms | ${result.usage.inputTokens}in/${result.usage.outputTokens}out | ${formatCost(result.usage.totalCostUsd)} | ${result.toolCalls.length} tool calls`
       );
     }
   }

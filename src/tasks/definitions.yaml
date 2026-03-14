@@ -1,5 +1,6 @@
 # ============================================================
 # Layer 1: Head-to-head tasks (CLI+Skills vs MCP)
+# 8 complex multi-step pipelines, 2 per service
 # ============================================================
 
 # --- Notion ---
@@ -7,16 +8,21 @@
 - id: N1
   layer: 1
   service: notion
-  description: Search for a specific page by title
+  description: Search DB, read pages, compute stats, create summary page
   path: both
-  scoring: deterministic
-  expectedOutput: "Page ID and title matching the search query"
+  scoring: manual
+  expectedOutput: "Summary page created with computed statistics from database pages"
   variants:
     cli:
       prompt: >
-        Search my Notion workspace for a page titled "Benchmark Test Page".
-        Return the page ID and title. Use the `notion-cli` tool.
-        The NOTION_API_KEY env var is already set. Do NOT use any MCP tools.
+        Search my Notion workspace for the database called "Benchmark Test DB".
+        Read all pages in that database. For each page, extract the "Value" property
+        (it's a number). Compute the average, min, max, and count of all values.
+        Then create a new page under {{NOTION_TEST_PAGE_ID}} titled
+        "Stats Summary — {{RUN_ID}}" with the computed statistics as the page content,
+        formatted as a bulleted list.
+        Use the `notion-cli` tool. The NOTION_API_KEY env var is already set.
+        Do NOT use any MCP tools.
       allowedTools:
         - Bash
         - Read
@@ -24,24 +30,37 @@
         - "mcp__*"
     mcp:
       prompt: >
-        Search my Notion workspace for a page titled "Benchmark Test Page".
-        Return the page ID and title.
+        Search my Notion workspace for the database called "Benchmark Test DB".
+        Read all pages in that database. For each page, extract the "Value" property
+        (it's a number). Compute the average, min, max, and count of all values.
+        Then create a new page under {{NOTION_TEST_PAGE_ID}} titled
+        "Stats Summary — {{RUN_ID}}" with the computed statistics as the page content,
+        formatted as a bulleted list.
       allowedTools:
         - "mcp__claude_ai_Notion__notion-search"
+        - "mcp__claude_ai_Notion__notion-fetch"
+        - "mcp__claude_ai_Notion__notion-create-pages"
 
 - id: N2
   layer: 1
   service: notion
-  description: Read the content of a known page
+  description: Read page content, create database from extracted data
   path: both
-  scoring: deterministic
-  expectedOutput: "Full page content including all blocks"
+  scoring: manual
+  expectedOutput: "New database created with rows derived from page content"
   variants:
     cli:
       prompt: >
-        Read the full content of Notion page with ID {{NOTION_TEST_PAGE_ID}}.
-        Return the page title and all text content. Use the `notion-cli` tool.
-        The NOTION_API_KEY env var is already set. Do NOT use any MCP tools.
+        Read the Notion page {{NOTION_TEST_PAGE_ID}} and all its child pages.
+        Collect the titles and any content from each child page.
+        Then create a new Notion database called "Page Index — {{RUN_ID}}"
+        under {{NOTION_TEST_PAGE_ID}} with these properties:
+        - Page Title (title)
+        - Has Content (checkbox — true if the page had any text content)
+        - Source (select — set to "automated")
+        Add one row for each child page you found.
+        Use the `notion-cli` tool. The NOTION_API_KEY env var is already set.
+        Do NOT use any MCP tools.
       allowedTools:
         - Bash
         - Read
@@ -49,78 +68,37 @@
         - "mcp__*"
     mcp:
       prompt: >
-        Read the full content of Notion page with ID {{NOTION_TEST_PAGE_ID}}.
-        Return the page title and all text content.
+        Read the Notion page {{NOTION_TEST_PAGE_ID}} and all its child pages.
+        Collect the titles and any content from each child page.
+        Then create a new Notion database called "Page Index — {{RUN_ID}}"
+        under {{NOTION_TEST_PAGE_ID}} with these properties:
+        - Page Title (title)
+        - Has Content (checkbox — true if the page had any text content)
+        - Source (select — set to "automated")
+        Add one row for each child page you found.
       allowedTools:
         - "mcp__claude_ai_Notion__notion-fetch"
-
-- id: N3
-  layer: 1
-  service: notion
-  description: Create a new page in a database
-  path: both
-  scoring: deterministic
-  expectedOutput: "New page created with correct title and properties, page ID returned"
-  variants:
-    cli:
-      prompt: >
-        Create a new page in Notion database {{NOTION_TEST_DB_ID}} with the title
-        "Benchmark Run {{RUN_ID}}" and a Status property set to "In Progress".
-        Return the new page ID. Use the `notion-cli` tool.
-        The NOTION_API_KEY env var is already set. Do NOT use any MCP tools.
-      allowedTools:
-        - Bash
-        - Read
-      disallowedTools:
-        - "mcp__*"
-    mcp:
-      prompt: >
-        Create a new page in Notion database {{NOTION_TEST_DB_ID}} with the title
-        "Benchmark Run {{RUN_ID}}" and a Status property set to "In Progress".
-        Return the new page ID.
-      allowedTools:
+        - "mcp__claude_ai_Notion__notion-create-database"
         - "mcp__claude_ai_Notion__notion-create-pages"
-
-- id: N4
-  layer: 1
-  service: notion
-  description: Update a page property
-  path: both
-  scoring: deterministic
-  expectedOutput: "Page property updated successfully, confirmed via read-back"
-  variants:
-    cli:
-      prompt: >
-        Update the Notion page {{NOTION_TEST_PAGE_ID}} to set the Status property
-        to "Done". Then read the page back to confirm the update. Use the `notion-cli` tool.
-        The NOTION_API_KEY env var is already set. Do NOT use any MCP tools.
-      allowedTools:
-        - Bash
-        - Read
-      disallowedTools:
-        - "mcp__*"
-    mcp:
-      prompt: >
-        Update the Notion page {{NOTION_TEST_PAGE_ID}} to set the Status property
-        to "Done". Then read the page back to confirm the update.
-      allowedTools:
-        - "mcp__claude_ai_Notion__notion-update-page"
-        - "mcp__claude_ai_Notion__notion-fetch"
 
 # --- Slack ---
 
 - id: S1
   layer: 1
   service: slack
-  description: Read last 10 messages from a channel
+  description: Read channel, profile each unique user, post activity report
   path: both
-  scoring: deterministic
-  expectedOutput: "10 messages with authors, text, and timestamps"
+  scoring: manual
+  expectedOutput: "Activity report posted with per-user message counts and display names"
   variants:
     cli:
       prompt: >
-        Read the last 10 messages from Slack channel {{SLACK_TEST_CHANNEL_ID}}.
-        Return each message with its author, text, and timestamp.
+        Read the full message history of Slack channel {{SLACK_TEST_CHANNEL_ID}}.
+        Group messages by user. For each unique user, get their display name.
+        Then post a formatted activity report to the same channel with the
+        subject line "Channel Activity Report — {{RUN_ID}}" containing:
+        each user's display name, message count, and the timestamp of their
+        most recent message. Sort by message count descending.
         Use the `slack-cli` tool. The slack-cli profile is already configured.
         Do NOT use any MCP tools.
       allowedTools:
@@ -130,85 +108,35 @@
         - "mcp__*"
     mcp:
       prompt: >
-        Read the last 10 messages from Slack channel {{SLACK_TEST_CHANNEL_ID}}.
-        Return each message with its author, text, and timestamp.
+        Read the full message history of Slack channel {{SLACK_TEST_CHANNEL_ID}}.
+        Group messages by user. For each unique user, get their display name.
+        Then post a formatted activity report to the same channel with the
+        subject line "Channel Activity Report — {{RUN_ID}}" containing:
+        each user's display name, message count, and the timestamp of their
+        most recent message. Sort by message count descending.
       allowedTools:
         - "mcp__claude_ai_Slack__slack_read_channel"
+        - "mcp__claude_ai_Slack__slack_read_user_profile"
+        - "mcp__claude_ai_Slack__slack_send_message"
 
 - id: S2
   layer: 1
   service: slack
-  description: Read channel and identify most active user
-  path: both
-  scoring: deterministic
-  expectedOutput: "Most active user identified with message count and profile info"
-  variants:
-    cli:
-      prompt: >
-        Read the message history of Slack channel {{SLACK_TEST_CHANNEL_ID}}.
-        Find which user posted the most messages. Return their user ID,
-        message count, and display name.
-        Use the `slack-cli` tool. The slack-cli profile is already configured.
-        Do NOT use any MCP tools.
-      allowedTools:
-        - Bash
-        - Read
-      disallowedTools:
-        - "mcp__*"
-    mcp:
-      prompt: >
-        Read the message history of Slack channel {{SLACK_TEST_CHANNEL_ID}}.
-        Find which user posted the most messages. Return their user ID,
-        message count, and display name.
-      allowedTools:
-        - "mcp__claude_ai_Slack__slack_read_channel"
-        - "mcp__claude_ai_Slack__slack_read_user_profile"
-
-- id: S3
-  layer: 1
-  service: slack
-  description: Send a message and verify delivery by reading it back
-  path: both
-  scoring: deterministic
-  expectedOutput: "Message sent, then read back from channel history to confirm exact text match"
-  variants:
-    cli:
-      prompt: >
-        Send the message "Benchmark test {{RUN_ID}}" to Slack channel
-        {{SLACK_TEST_CHANNEL_ID}}. Then read the channel's recent messages
-        to confirm your message appears. Return the timestamp and the
-        exact text as read back from the channel.
-        Use the `slack-cli` tool. The slack-cli profile is already configured.
-        Do NOT use any MCP tools.
-      allowedTools:
-        - Bash
-        - Read
-      disallowedTools:
-        - "mcp__*"
-    mcp:
-      prompt: >
-        Send the message "Benchmark test {{RUN_ID}}" to Slack channel
-        {{SLACK_TEST_CHANNEL_ID}}. Then read the channel's recent messages
-        to confirm your message appears. Return the timestamp and the
-        exact text as read back from the channel.
-      allowedTools:
-        - "mcp__claude_ai_Slack__slack_send_message"
-        - "mcp__claude_ai_Slack__slack_read_channel"
-
-- id: S4
-  layer: 1
-  service: slack
-  description: Read a thread, summarize it, and post the summary
+  description: Read thread, extract action items, post follow-up
   path: both
   scoring: manual
-  expectedOutput: "Thread read, summary generated, and posted as a new message in the channel"
+  expectedOutput: "Follow-up message posted listing extracted action items and unanswered questions"
   variants:
     cli:
       prompt: >
         Read the Slack thread at channel {{SLACK_TEST_CHANNEL_ID}} with thread
-        timestamp {{SLACK_TEST_THREAD_TS}}. Write a 2-3 sentence summary of
-        the discussion. Then post that summary as a new message in the same
-        channel, prefixed with "Thread summary:".
+        timestamp {{SLACK_TEST_THREAD_TS}}. Analyze the conversation to identify:
+        1. Any questions that were asked but not answered
+        2. Any action items or commitments mentioned
+        3. The overall topic of discussion
+        Then post a new message to {{SLACK_TEST_CHANNEL_ID}} with the subject
+        "Thread Follow-up — {{RUN_ID}}" containing a structured summary with
+        sections for Topic, Unanswered Questions, and Action Items.
         Use the `slack-cli` tool. The slack-cli profile is already configured.
         Do NOT use any MCP tools.
       allowedTools:
@@ -219,9 +147,13 @@
     mcp:
       prompt: >
         Read the Slack thread at channel {{SLACK_TEST_CHANNEL_ID}} with thread
-        timestamp {{SLACK_TEST_THREAD_TS}}. Write a 2-3 sentence summary of
-        the discussion. Then post that summary as a new message in the same
-        channel, prefixed with "Thread summary:".
+        timestamp {{SLACK_TEST_THREAD_TS}}. Analyze the conversation to identify:
+        1. Any questions that were asked but not answered
+        2. Any action items or commitments mentioned
+        3. The overall topic of discussion
+        Then post a new message to {{SLACK_TEST_CHANNEL_ID}} with the subject
+        "Thread Follow-up — {{RUN_ID}}" containing a structured summary with
+        sections for Topic, Unanswered Questions, and Action Items.
       allowedTools:
         - "mcp__claude_ai_Slack__slack_read_thread"
         - "mcp__claude_ai_Slack__slack_send_message"
@@ -231,15 +163,20 @@
 - id: G1
   layer: 1
   service: github
-  description: Search issues by label in a repo
+  description: Audit issues — categorize, count, create triage summary
   path: both
-  scoring: deterministic
-  expectedOutput: "List of issues with titles, numbers, and labels matching the query"
+  scoring: manual
+  expectedOutput: "Triage issue created with categorized counts and recommended actions"
   variants:
     cli:
       prompt: >
-        Search for all open issues with the label "benchmark" in the repo
-        {{GITHUB_TEST_REPO}}. Return each issue's number, title, and labels.
+        In the repo {{GITHUB_TEST_REPO}}, list all open issues.
+        Categorize them by label (group issues sharing the same label).
+        For each category, count the issues and note the oldest one.
+        Then create a new issue titled "Issue Triage — {{RUN_ID}}" with label
+        "triage" containing a markdown table with columns:
+        Label, Count, Oldest Issue (#number), and Recommended Action
+        (suggest "close" if older than 7 days, "review" otherwise).
         Use the gh CLI tool. Do NOT use any MCP tools.
       allowedTools:
         - Bash
@@ -248,24 +185,37 @@
         - "mcp__*"
     mcp:
       prompt: >
-        Search for all open issues with the label "benchmark" in the repo
-        {{GITHUB_TEST_REPO}}. Return each issue's number, title, and labels.
+        In the repo {{GITHUB_TEST_REPO}}, list all open issues.
+        Categorize them by label (group issues sharing the same label).
+        For each category, count the issues and note the oldest one.
+        Then create a new issue titled "Issue Triage — {{RUN_ID}}" with label
+        "triage" containing a markdown table with columns:
+        Label, Count, Oldest Issue (#number), and Recommended Action
+        (suggest "close" if older than 7 days, "review" otherwise).
       allowedTools:
-        - "mcp__github__search_issues"
         - "mcp__github__list_issues"
+        - "mcp__github__search_issues"
+        - "mcp__github__issue_write"
 
 - id: G2
   layer: 1
   service: github
-  description: Read a PR diff and summarize changes
+  description: Read PR, check related issues, post structured review
   path: both
   scoring: manual
-  expectedOutput: "Accurate summary of files changed, additions, deletions"
+  expectedOutput: "Review comment posted on PR with diff analysis and issue cross-reference"
   variants:
     cli:
       prompt: >
-        Read the diff for PR #{{GITHUB_TEST_PR_NUMBER}} in {{GITHUB_TEST_REPO}}.
-        Summarize what changed: which files, what was added, what was removed.
+        In the repo {{GITHUB_TEST_REPO}}, read the diff for PR
+        #{{GITHUB_TEST_PR_NUMBER}}. Also read the PR description and any
+        linked or referenced issues. Then create a new issue titled
+        "PR Review — #{{GITHUB_TEST_PR_NUMBER}} — {{RUN_ID}}" with label
+        "review" containing:
+        1. A summary of what the PR changes
+        2. Whether the changes align with any open issues
+        3. Code quality observations (naming, structure, potential bugs)
+        4. A verdict: approve, request changes, or needs discussion
         Use the gh CLI tool. Do NOT use any MCP tools.
       allowedTools:
         - Bash
@@ -274,78 +224,40 @@
         - "mcp__*"
     mcp:
       prompt: >
-        Read the diff for PR #{{GITHUB_TEST_PR_NUMBER}} in {{GITHUB_TEST_REPO}}.
-        Summarize what changed: which files, what was added, what was removed.
+        In the repo {{GITHUB_TEST_REPO}}, read the diff for PR
+        #{{GITHUB_TEST_PR_NUMBER}}. Also read the PR description and any
+        linked or referenced issues. Then create a new issue titled
+        "PR Review — #{{GITHUB_TEST_PR_NUMBER}} — {{RUN_ID}}" with label
+        "review" containing:
+        1. A summary of what the PR changes
+        2. Whether the changes align with any open issues
+        3. Code quality observations (naming, structure, potential bugs)
+        4. A verdict: approve, request changes, or needs discussion
       allowedTools:
         - "mcp__github__pull_request_read"
-
-- id: G3
-  layer: 1
-  service: github
-  description: Create an issue with title, body, and labels
-  path: both
-  scoring: deterministic
-  expectedOutput: "Issue created with correct title, body, labels. URL returned."
-  variants:
-    cli:
-      prompt: >
-        Create a new issue in {{GITHUB_TEST_REPO}} with title "Benchmark test {{RUN_ID}}",
-        body "This is an automated benchmark test issue.", and label "benchmark".
-        Return the issue URL. Use the gh CLI tool. Do NOT use any MCP tools.
-      allowedTools:
-        - Bash
-        - Read
-      disallowedTools:
-        - "mcp__*"
-    mcp:
-      prompt: >
-        Create a new issue in {{GITHUB_TEST_REPO}} with title "Benchmark test {{RUN_ID}}",
-        body "This is an automated benchmark test issue.", and label "benchmark".
-        Return the issue URL.
-      allowedTools:
+        - "mcp__github__list_issues"
         - "mcp__github__issue_write"
-
-- id: G4
-  layer: 1
-  service: github
-  description: Check CI status on a specific PR
-  path: both
-  scoring: deterministic
-  expectedOutput: "CI check names and their pass/fail/pending status"
-  variants:
-    cli:
-      prompt: >
-        Check the CI status for PR #{{GITHUB_TEST_PR_NUMBER}} in {{GITHUB_TEST_REPO}}.
-        Return each check's name and status (pass/fail/pending).
-        Use the gh CLI tool. Do NOT use any MCP tools.
-      allowedTools:
-        - Bash
-        - Read
-      disallowedTools:
-        - "mcp__*"
-    mcp:
-      prompt: >
-        Check the CI status for PR #{{GITHUB_TEST_PR_NUMBER}} in {{GITHUB_TEST_REPO}}.
-        Return each check's name and status (pass/fail/pending).
-      allowedTools:
-        - "mcp__github__pull_request_read"
-        - "mcp__github__actions_list"
 
 # --- Postgres ---
 
 - id: P1
   layer: 1
   service: postgres
-  description: Query rows matching a filter
+  description: Join tables, aggregate metrics, create summary view
   path: both
   scoring: deterministic
-  expectedOutput: "Rows matching the filter with all columns"
+  expectedOutput: "Summary table created with per-item aggregated metrics from joined data"
   variants:
     cli:
       prompt: >
-        Query the "benchmark_items" table in the database and return all rows
-        where status = 'active'. The DATABASE_URL environment variable has the
-        connection string. Use psql via bash. Do NOT use any MCP tools.
+        Using the database at DATABASE_URL, join the "benchmark_items" and
+        "benchmark_metrics" tables on benchmark_items.name = benchmark_metrics.item_name.
+        For each item, compute: total requests, total errors, error rate
+        (errors/requests as percentage), and average p99 latency.
+        Only include active items. Create a new table called
+        "item_health_{{RUN_ID}}" with these aggregated results.
+        Then query the new table and return the item with the highest error rate.
+        Use psql via bash. Do NOT use any MCP tools.
       allowedTools:
         - Bash
         - Read
@@ -353,25 +265,36 @@
         - "mcp__*"
     mcp:
       prompt: >
-        Query the "benchmark_items" table and return all rows where status = 'active'.
+        Join the "benchmark_items" and "benchmark_metrics" tables on
+        benchmark_items.name = benchmark_metrics.item_name.
+        For each item, compute: total requests, total errors, error rate
+        (errors/requests as percentage), and average p99 latency.
+        Only include active items. Create a new table called
+        "item_health_{{RUN_ID}}" with these aggregated results.
+        Then query the new table and return the item with the highest error rate.
       allowedTools:
         - "mcp__postgres__execute_sql"
 
 - id: P2
   layer: 1
   service: postgres
-  description: Create a table with a defined schema
+  description: Analyze schema, detect data quality issues, generate report
   path: both
-  scoring: deterministic
-  expectedOutput: "Table created with correct columns and types"
+  scoring: manual
+  expectedOutput: "Report table created with data quality findings across all tables"
   variants:
     cli:
       prompt: >
-        Create a table called "benchmark_run_{{RUN_ID}}" with columns:
-        id (serial primary key), name (text not null), value (numeric),
-        created_at (timestamp default now()). The DATABASE_URL environment
-        variable has the connection string. Use psql via bash.
-        Do NOT use any MCP tools.
+        Using the database at DATABASE_URL, inspect the schema of all tables
+        in the public schema. For each table and column, check:
+        1. How many NULL values exist
+        2. How many duplicate values exist (for non-PK columns)
+        3. The total row count
+        Create a report table called "data_quality_{{RUN_ID}}" with columns:
+        table_name, column_name, total_rows, null_count, null_pct, duplicate_count.
+        Populate it with findings for all columns across all tables.
+        Then query the report to show which columns have the highest null percentage.
+        Use psql via bash. Do NOT use any MCP tools.
       allowedTools:
         - Bash
         - Read
@@ -379,41 +302,15 @@
         - "mcp__*"
     mcp:
       prompt: >
-        Create a table called "benchmark_run_{{RUN_ID}}" with columns:
-        id (serial primary key), name (text not null), value (numeric),
-        created_at (timestamp default now()).
-      allowedTools:
-        - "mcp__postgres__execute_sql"
-
-- id: P3
-  layer: 1
-  service: postgres
-  description: Insert rows and query to verify
-  path: both
-  scoring: deterministic
-  expectedOutput: "Rows inserted and read back correctly with matching values"
-  variants:
-    cli:
-      prompt: >
-        Insert 3 rows into the "benchmark_items" table:
-        (name='alpha', value=100, status='active'),
-        (name='beta', value=200, status='inactive'),
-        (name='gamma', value=300, status='active').
-        Then query back all rows to verify. The DATABASE_URL environment
-        variable has the connection string. Use psql via bash.
-        Do NOT use any MCP tools.
-      allowedTools:
-        - Bash
-        - Read
-      disallowedTools:
-        - "mcp__*"
-    mcp:
-      prompt: >
-        Insert 3 rows into the "benchmark_items" table:
-        (name='alpha', value=100, status='active'),
-        (name='beta', value=200, status='inactive'),
-        (name='gamma', value=300, status='active').
-        Then query back all rows to verify.
+        Inspect the schema of all tables in the public schema. For each table
+        and column, check:
+        1. How many NULL values exist
+        2. How many duplicate values exist (for non-PK columns)
+        3. The total row count
+        Create a report table called "data_quality_{{RUN_ID}}" with columns:
+        table_name, column_name, total_rows, null_count, null_pct, duplicate_count.
+        Populate it with findings for all columns across all tables.
+        Then query the report to show which columns have the highest null percentage.
       allowedTools:
         - "mcp__postgres__execute_sql"
 
