@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from "fs";
+import { readFileSync, writeFileSync, readdirSync, mkdirSync } from "fs";
 import { resolve } from "path";
 import { loadTasks } from "../tasks/loader.js";
 import { RESULTS_DIR } from "../config.js";
@@ -20,10 +20,10 @@ const taskMap = new Map(tasks.map((t) => [t.id, t]));
 const scoredPath = resolve(runDir, "_scored.json");
 let results: TaskResult[];
 
-if (existsSync(scoredPath)) {
+try {
   const scored = JSON.parse(readFileSync(scoredPath, "utf-8"));
   results = scored.results;
-} else {
+} catch {
   const files = readdirSync(runDir).filter(
     (f) => f.endsWith(".json") && !f.startsWith("_") && !f.includes("_steps")
   );

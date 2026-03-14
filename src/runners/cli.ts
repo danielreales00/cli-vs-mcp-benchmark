@@ -1,4 +1,4 @@
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
 import { writeFileSync, mkdirSync } from "fs";
 import { resolve } from "path";
 import { loadTasks } from "../tasks/loader.js";
@@ -43,9 +43,8 @@ function runClaudeTask(
   timeoutMs: number = 300_000
 ): { output: ClaudeResultMessage; durationMs: number } {
   const args: string[] = [
-    "claude",
     "-p",
-    JSON.stringify(prompt),
+    prompt,
     "--output-format",
     "json",
     "--max-turns",
@@ -61,7 +60,7 @@ function runClaudeTask(
 
   const start = performance.now();
   try {
-    const stdout = execSync(args.join(" "), {
+    const stdout = execFileSync("claude", args, {
       timeout: timeoutMs,
       encoding: "utf-8",
       maxBuffer: 10 * 1024 * 1024,

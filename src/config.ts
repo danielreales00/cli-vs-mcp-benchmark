@@ -1,27 +1,15 @@
 import { readFileSync } from "fs";
 import { resolve } from "path";
+import { config as loadDotenv } from "dotenv";
 
 const ROOT = resolve(import.meta.dirname, "..");
 
+// Load .env into process.env so child processes (claude -p) inherit them
+loadDotenv({ path: resolve(ROOT, ".env") });
+
 export function loadFixtures(): Record<string, string> {
-  const envPath = resolve(ROOT, ".env");
-  const fixtures: Record<string, string> = {};
-
-  try {
-    const lines = readFileSync(envPath, "utf-8").split("\n");
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith("#")) continue;
-      const eq = trimmed.indexOf("=");
-      if (eq === -1) continue;
-      fixtures[trimmed.slice(0, eq)] = trimmed.slice(eq + 1);
-    }
-  } catch {
-    // .env is optional — env vars can come from the shell
-  }
-
-  // Merge with process.env (env vars take precedence)
-  return { ...fixtures, ...process.env } as Record<string, string>;
+  // After dotenv loading, process.env has everything
+  return { ...process.env } as Record<string, string>;
 }
 
 export function resolvePrompt(

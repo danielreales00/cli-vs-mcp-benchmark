@@ -138,15 +138,16 @@
 - id: S2
   layer: 1
   service: slack
-  description: Search messages containing a keyword
+  description: Read channel and identify most active user
   path: both
   scoring: deterministic
-  expectedOutput: "Messages matching the search keyword with channel and author context"
+  expectedOutput: "Most active user identified with message count and profile info"
   variants:
     cli:
       prompt: >
-        Search Slack for messages containing "benchmark test fixture".
-        Return matching messages with their channel name and author.
+        Read the message history of Slack channel {{SLACK_TEST_CHANNEL_ID}}.
+        Find which user posted the most messages. Return their user ID,
+        message count, and display name.
         Use the `slack-cli` tool. The slack-cli profile is already configured.
         Do NOT use any MCP tools.
       allowedTools:
@@ -156,23 +157,27 @@
         - "mcp__*"
     mcp:
       prompt: >
-        Search Slack for messages containing "benchmark test fixture".
-        Return matching messages with their channel name and author.
+        Read the message history of Slack channel {{SLACK_TEST_CHANNEL_ID}}.
+        Find which user posted the most messages. Return their user ID,
+        message count, and display name.
       allowedTools:
-        - "mcp__claude_ai_Slack__slack_search_public"
+        - "mcp__claude_ai_Slack__slack_read_channel"
+        - "mcp__claude_ai_Slack__slack_read_user_profile"
 
 - id: S3
   layer: 1
   service: slack
-  description: Send a message to a channel
+  description: Send a message and verify delivery by reading it back
   path: both
   scoring: deterministic
-  expectedOutput: "Message posted, timestamp returned as confirmation"
+  expectedOutput: "Message sent, then read back from channel history to confirm exact text match"
   variants:
     cli:
       prompt: >
         Send the message "Benchmark test {{RUN_ID}}" to Slack channel
-        {{SLACK_TEST_CHANNEL_ID}}. Return the message timestamp as confirmation.
+        {{SLACK_TEST_CHANNEL_ID}}. Then read the channel's recent messages
+        to confirm your message appears. Return the timestamp and the
+        exact text as read back from the channel.
         Use the `slack-cli` tool. The slack-cli profile is already configured.
         Do NOT use any MCP tools.
       allowedTools:
@@ -183,22 +188,27 @@
     mcp:
       prompt: >
         Send the message "Benchmark test {{RUN_ID}}" to Slack channel
-        {{SLACK_TEST_CHANNEL_ID}}. Return the message timestamp as confirmation.
+        {{SLACK_TEST_CHANNEL_ID}}. Then read the channel's recent messages
+        to confirm your message appears. Return the timestamp and the
+        exact text as read back from the channel.
       allowedTools:
         - "mcp__claude_ai_Slack__slack_send_message"
+        - "mcp__claude_ai_Slack__slack_read_channel"
 
 - id: S4
   layer: 1
   service: slack
-  description: Read a specific thread
+  description: Read a thread, summarize it, and post the summary
   path: both
-  scoring: deterministic
-  expectedOutput: "Thread messages in order with authors and timestamps"
+  scoring: manual
+  expectedOutput: "Thread read, summary generated, and posted as a new message in the channel"
   variants:
     cli:
       prompt: >
-        Read all replies in the Slack thread at channel {{SLACK_TEST_CHANNEL_ID}}
-        with thread timestamp {{SLACK_TEST_THREAD_TS}}. Return all messages in order.
+        Read the Slack thread at channel {{SLACK_TEST_CHANNEL_ID}} with thread
+        timestamp {{SLACK_TEST_THREAD_TS}}. Write a 2-3 sentence summary of
+        the discussion. Then post that summary as a new message in the same
+        channel, prefixed with "Thread summary:".
         Use the `slack-cli` tool. The slack-cli profile is already configured.
         Do NOT use any MCP tools.
       allowedTools:
@@ -208,10 +218,13 @@
         - "mcp__*"
     mcp:
       prompt: >
-        Read all replies in the Slack thread at channel {{SLACK_TEST_CHANNEL_ID}}
-        with thread timestamp {{SLACK_TEST_THREAD_TS}}. Return all messages in order.
+        Read the Slack thread at channel {{SLACK_TEST_CHANNEL_ID}} with thread
+        timestamp {{SLACK_TEST_THREAD_TS}}. Write a 2-3 sentence summary of
+        the discussion. Then post that summary as a new message in the same
+        channel, prefixed with "Thread summary:".
       allowedTools:
         - "mcp__claude_ai_Slack__slack_read_thread"
+        - "mcp__claude_ai_Slack__slack_send_message"
 
 # --- GitHub ---
 

@@ -26,17 +26,10 @@ interface StepLog {
 }
 
 function buildMcpServers(
-  task: TaskDefinition,
-  variant: "cli" | "mcp",
+  tools: string[],
   fixtures: Record<string, string>
 ): Record<string, McpServerConfig> | undefined {
-  if (variant === "cli") return undefined;
-
   const servers: Record<string, McpServerConfig> = {};
-  const variantDef = task.variants[variant];
-  if (!variantDef) return undefined;
-
-  const tools = variantDef.allowedTools ?? [];
 
   // Determine which MCP servers we need based on tool prefixes
   for (const tool of tools) {
@@ -86,7 +79,7 @@ async function runSdkTask(
     allowDangerouslySkipPermissions: true,
     allowedTools: variantDef.allowedTools,
     disallowedTools: variantDef.disallowedTools,
-    mcpServers: buildMcpServers(task, variant, fixtures),
+    mcpServers: variant === "mcp" ? buildMcpServers(variantDef.allowedTools ?? [], fixtures) : undefined,
   };
 
   console.log(`  Running ${task.id} [${variant}] via SDK...`);
@@ -126,9 +119,7 @@ async function runSdkTask(
           if (block.type === "tool_use") {
             toolCalls.push({
               toolName: block.name,
-              success: true, // updated on failure
-              inputTokens: usage.input_tokens,
-              outputTokens: usage.output_tokens,
+              success: true,
             });
           }
         }
@@ -161,7 +152,7 @@ async function runSdkTask(
     taskId: task.id,
     variant,
     pass: 2,
-    output: "result" in resultMsg ? (resultMsg as any).result ?? "" : "",
+    output: String((resultMsg as Record<string, unknown>).result ?? ""),
     usage: {
       inputTokens: resultMsg.usage.input_tokens,
       outputTokens: resultMsg.usage.output_tokens,

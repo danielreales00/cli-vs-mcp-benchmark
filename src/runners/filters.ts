@@ -10,8 +10,9 @@ export interface Filters {
 export function parseFilters(argv: string[]): Filters {
   const get = (prefix: string) => argv.find((a) => a.startsWith(prefix))?.split("=")[1] ?? null;
 
+  const layerStr = get("--layer=");
   return {
-    layer: get("--layer=") ? Number(get("--layer=")) : null,
+    layer: layerStr ? Number(layerStr) : null,
     service: get("--service="),
     variant: get("--variant=") as Filters["variant"],
     id: get("--id="),
