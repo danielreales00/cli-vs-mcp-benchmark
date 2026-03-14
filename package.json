@@ -1,0 +1,23 @@
+{
+  "name": "cli-vs-mcp-benchmark",
+  "version": "0.1.0",
+  "description": "Benchmark CLI+Skills vs MCP servers on cost and task accuracy",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "cli-run": "tsx src/runners/cli.ts",
+    "sdk-run": "tsx src/runners/sdk.ts",
+    "report": "tsx src/analysis/markdown.ts",
+    "score": "tsx src/analysis/scorer.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "tsx": "^4.19.0",
+    "@types/node": "^22.0.0",
+    "@types/js-yaml": "^4.0.9"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.1.0",
+    "js-yaml": "^4.1.0"
+  }
+}

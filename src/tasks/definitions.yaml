@@ -1,0 +1,550 @@
+# ============================================================
+# Layer 1: Head-to-head tasks (CLI+Skills vs MCP)
+# ============================================================
+
+# --- Notion ---
+
+- id: N1
+  layer: 1
+  service: notion
+  description: Search for a specific page by title
+  path: both
+  scoring: deterministic
+  expectedOutput: "Page ID and title matching the search query"
+  variants:
+    cli:
+      prompt: >
+        Search my Notion workspace for a page titled "Benchmark Test Page".
+        Return the page ID and title. Use the `notion-cli` tool.
+        The NOTION_API_KEY env var is already set. Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Search my Notion workspace for a page titled "Benchmark Test Page".
+        Return the page ID and title.
+      allowedTools:
+        - "mcp__claude_ai_Notion__notion-search"
+
+- id: N2
+  layer: 1
+  service: notion
+  description: Read the content of a known page
+  path: both
+  scoring: deterministic
+  expectedOutput: "Full page content including all blocks"
+  variants:
+    cli:
+      prompt: >
+        Read the full content of Notion page with ID {{NOTION_TEST_PAGE_ID}}.
+        Return the page title and all text content. Use the `notion-cli` tool.
+        The NOTION_API_KEY env var is already set. Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Read the full content of Notion page with ID {{NOTION_TEST_PAGE_ID}}.
+        Return the page title and all text content.
+      allowedTools:
+        - "mcp__claude_ai_Notion__notion-fetch"
+
+- id: N3
+  layer: 1
+  service: notion
+  description: Create a new page in a database
+  path: both
+  scoring: deterministic
+  expectedOutput: "New page created with correct title and properties, page ID returned"
+  variants:
+    cli:
+      prompt: >
+        Create a new page in Notion database {{NOTION_TEST_DB_ID}} with the title
+        "Benchmark Run {{RUN_ID}}" and a Status property set to "In Progress".
+        Return the new page ID. Use the `notion-cli` tool.
+        The NOTION_API_KEY env var is already set. Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Create a new page in Notion database {{NOTION_TEST_DB_ID}} with the title
+        "Benchmark Run {{RUN_ID}}" and a Status property set to "In Progress".
+        Return the new page ID.
+      allowedTools:
+        - "mcp__claude_ai_Notion__notion-create-pages"
+
+- id: N4
+  layer: 1
+  service: notion
+  description: Update a page property
+  path: both
+  scoring: deterministic
+  expectedOutput: "Page property updated successfully, confirmed via read-back"
+  variants:
+    cli:
+      prompt: >
+        Update the Notion page {{NOTION_TEST_PAGE_ID}} to set the Status property
+        to "Done". Then read the page back to confirm the update. Use the `notion-cli` tool.
+        The NOTION_API_KEY env var is already set. Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Update the Notion page {{NOTION_TEST_PAGE_ID}} to set the Status property
+        to "Done". Then read the page back to confirm the update.
+      allowedTools:
+        - "mcp__claude_ai_Notion__notion-update-page"
+        - "mcp__claude_ai_Notion__notion-fetch"
+
+# --- Slack ---
+
+- id: S1
+  layer: 1
+  service: slack
+  description: Read last 10 messages from a channel
+  path: both
+  scoring: deterministic
+  expectedOutput: "10 messages with authors, text, and timestamps"
+  variants:
+    cli:
+      prompt: >
+        Read the last 10 messages from Slack channel {{SLACK_TEST_CHANNEL_ID}}.
+        Return each message with its author, text, and timestamp.
+        Use the `slack-cli` tool. The slack-cli profile is already configured.
+        Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Read the last 10 messages from Slack channel {{SLACK_TEST_CHANNEL_ID}}.
+        Return each message with its author, text, and timestamp.
+      allowedTools:
+        - "mcp__claude_ai_Slack__slack_read_channel"
+
+- id: S2
+  layer: 1
+  service: slack
+  description: Search messages containing a keyword
+  path: both
+  scoring: deterministic
+  expectedOutput: "Messages matching the search keyword with channel and author context"
+  variants:
+    cli:
+      prompt: >
+        Search Slack for messages containing "benchmark test fixture".
+        Return matching messages with their channel name and author.
+        Use the `slack-cli` tool. The slack-cli profile is already configured.
+        Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Search Slack for messages containing "benchmark test fixture".
+        Return matching messages with their channel name and author.
+      allowedTools:
+        - "mcp__claude_ai_Slack__slack_search_public"
+
+- id: S3
+  layer: 1
+  service: slack
+  description: Send a message to a channel
+  path: both
+  scoring: deterministic
+  expectedOutput: "Message posted, timestamp returned as confirmation"
+  variants:
+    cli:
+      prompt: >
+        Send the message "Benchmark test {{RUN_ID}}" to Slack channel
+        {{SLACK_TEST_CHANNEL_ID}}. Return the message timestamp as confirmation.
+        Use the `slack-cli` tool. The slack-cli profile is already configured.
+        Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Send the message "Benchmark test {{RUN_ID}}" to Slack channel
+        {{SLACK_TEST_CHANNEL_ID}}. Return the message timestamp as confirmation.
+      allowedTools:
+        - "mcp__claude_ai_Slack__slack_send_message"
+
+- id: S4
+  layer: 1
+  service: slack
+  description: Read a specific thread
+  path: both
+  scoring: deterministic
+  expectedOutput: "Thread messages in order with authors and timestamps"
+  variants:
+    cli:
+      prompt: >
+        Read all replies in the Slack thread at channel {{SLACK_TEST_CHANNEL_ID}}
+        with thread timestamp {{SLACK_TEST_THREAD_TS}}. Return all messages in order.
+        Use the `slack-cli` tool. The slack-cli profile is already configured.
+        Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Read all replies in the Slack thread at channel {{SLACK_TEST_CHANNEL_ID}}
+        with thread timestamp {{SLACK_TEST_THREAD_TS}}. Return all messages in order.
+      allowedTools:
+        - "mcp__claude_ai_Slack__slack_read_thread"
+
+# --- GitHub ---
+
+- id: G1
+  layer: 1
+  service: github
+  description: Search issues by label in a repo
+  path: both
+  scoring: deterministic
+  expectedOutput: "List of issues with titles, numbers, and labels matching the query"
+  variants:
+    cli:
+      prompt: >
+        Search for all open issues with the label "benchmark" in the repo
+        {{GITHUB_TEST_REPO}}. Return each issue's number, title, and labels.
+        Use the gh CLI tool. Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Search for all open issues with the label "benchmark" in the repo
+        {{GITHUB_TEST_REPO}}. Return each issue's number, title, and labels.
+      allowedTools:
+        - "mcp__github__search_issues"
+        - "mcp__github__list_issues"
+
+- id: G2
+  layer: 1
+  service: github
+  description: Read a PR diff and summarize changes
+  path: both
+  scoring: manual
+  expectedOutput: "Accurate summary of files changed, additions, deletions"
+  variants:
+    cli:
+      prompt: >
+        Read the diff for PR #{{GITHUB_TEST_PR_NUMBER}} in {{GITHUB_TEST_REPO}}.
+        Summarize what changed: which files, what was added, what was removed.
+        Use the gh CLI tool. Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Read the diff for PR #{{GITHUB_TEST_PR_NUMBER}} in {{GITHUB_TEST_REPO}}.
+        Summarize what changed: which files, what was added, what was removed.
+      allowedTools:
+        - "mcp__github__pull_request_read"
+
+- id: G3
+  layer: 1
+  service: github
+  description: Create an issue with title, body, and labels
+  path: both
+  scoring: deterministic
+  expectedOutput: "Issue created with correct title, body, labels. URL returned."
+  variants:
+    cli:
+      prompt: >
+        Create a new issue in {{GITHUB_TEST_REPO}} with title "Benchmark test {{RUN_ID}}",
+        body "This is an automated benchmark test issue.", and label "benchmark".
+        Return the issue URL. Use the gh CLI tool. Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Create a new issue in {{GITHUB_TEST_REPO}} with title "Benchmark test {{RUN_ID}}",
+        body "This is an automated benchmark test issue.", and label "benchmark".
+        Return the issue URL.
+      allowedTools:
+        - "mcp__github__issue_write"
+
+- id: G4
+  layer: 1
+  service: github
+  description: Check CI status on a specific PR
+  path: both
+  scoring: deterministic
+  expectedOutput: "CI check names and their pass/fail/pending status"
+  variants:
+    cli:
+      prompt: >
+        Check the CI status for PR #{{GITHUB_TEST_PR_NUMBER}} in {{GITHUB_TEST_REPO}}.
+        Return each check's name and status (pass/fail/pending).
+        Use the gh CLI tool. Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Check the CI status for PR #{{GITHUB_TEST_PR_NUMBER}} in {{GITHUB_TEST_REPO}}.
+        Return each check's name and status (pass/fail/pending).
+      allowedTools:
+        - "mcp__github__pull_request_read"
+        - "mcp__github__actions_list"
+
+# --- Postgres ---
+
+- id: P1
+  layer: 1
+  service: postgres
+  description: Query rows matching a filter
+  path: both
+  scoring: deterministic
+  expectedOutput: "Rows matching the filter with all columns"
+  variants:
+    cli:
+      prompt: >
+        Query the "benchmark_items" table in the database and return all rows
+        where status = 'active'. The DATABASE_URL environment variable has the
+        connection string. Use psql via bash. Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Query the "benchmark_items" table and return all rows where status = 'active'.
+      allowedTools:
+        - "mcp__postgres__execute_sql"
+
+- id: P2
+  layer: 1
+  service: postgres
+  description: Create a table with a defined schema
+  path: both
+  scoring: deterministic
+  expectedOutput: "Table created with correct columns and types"
+  variants:
+    cli:
+      prompt: >
+        Create a table called "benchmark_run_{{RUN_ID}}" with columns:
+        id (serial primary key), name (text not null), value (numeric),
+        created_at (timestamp default now()). The DATABASE_URL environment
+        variable has the connection string. Use psql via bash.
+        Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Create a table called "benchmark_run_{{RUN_ID}}" with columns:
+        id (serial primary key), name (text not null), value (numeric),
+        created_at (timestamp default now()).
+      allowedTools:
+        - "mcp__postgres__execute_sql"
+
+- id: P3
+  layer: 1
+  service: postgres
+  description: Insert rows and query to verify
+  path: both
+  scoring: deterministic
+  expectedOutput: "Rows inserted and read back correctly with matching values"
+  variants:
+    cli:
+      prompt: >
+        Insert 3 rows into the "benchmark_items" table:
+        (name='alpha', value=100, status='active'),
+        (name='beta', value=200, status='inactive'),
+        (name='gamma', value=300, status='active').
+        Then query back all rows to verify. The DATABASE_URL environment
+        variable has the connection string. Use psql via bash.
+        Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Insert 3 rows into the "benchmark_items" table:
+        (name='alpha', value=100, status='active'),
+        (name='beta', value=200, status='inactive'),
+        (name='gamma', value=300, status='active').
+        Then query back all rows to verify.
+      allowedTools:
+        - "mcp__postgres__execute_sql"
+
+# ============================================================
+# Layer 2: Single-path demos
+# ============================================================
+
+# --- CLI+Skills only ---
+
+- id: C1
+  layer: 2
+  service: github
+  description: Use /commit skill to stage and create a conventional commit
+  path: cli_only
+  scoring: manual
+  expectedOutput: "Changes staged and committed with a well-formatted conventional commit message"
+  variants:
+    cli:
+      prompt: >
+        There are unstaged changes in this repo. Use the /commit skill to
+        stage the changes and create a conventional commit with an appropriate message.
+      allowedTools:
+        - Bash
+        - Read
+        - Edit
+        - Glob
+        - Grep
+        - Skill
+
+- id: C2
+  layer: 2
+  service: github
+  description: Use /review-pr skill to analyze a PR
+  path: cli_only
+  scoring: manual
+  expectedOutput: "Thorough PR review with actionable feedback on code quality, bugs, and improvements"
+  variants:
+    cli:
+      prompt: >
+        Review the open PR #{{GITHUB_TEST_PR_NUMBER}} in {{GITHUB_TEST_REPO}}
+        using the review workflow. Provide actionable feedback.
+      allowedTools:
+        - Bash
+        - Read
+        - Glob
+        - Grep
+        - Skill
+
+- id: C3
+  layer: 2
+  service: github
+  description: Complex gh pipeline — find stale PRs, check CI, summarize
+  path: cli_only
+  scoring: manual
+  expectedOutput: "Summary of stale PRs with their CI status and recommended actions"
+  variants:
+    cli:
+      prompt: >
+        In the repo {{GITHUB_TEST_REPO}}, find all PRs that haven't been
+        updated in the last 7 days. For each one, check its CI status.
+        Produce a summary table with: PR number, title, last update date,
+        CI status, and a recommended action (merge/close/needs-review).
+      allowedTools:
+        - Bash
+        - Read
+
+- id: C4
+  layer: 2
+  service: github
+  description: Use /simplify skill to review and improve code quality
+  path: cli_only
+  scoring: manual
+  expectedOutput: "Code reviewed for quality issues with concrete fixes applied"
+  variants:
+    cli:
+      prompt: >
+        Use the /simplify skill to review the src/ code in this project.
+        Find opportunities for reuse, quality improvements, and efficiency gains.
+        Fix any issues found.
+      allowedTools:
+        - Bash
+        - Read
+        - Edit
+        - Glob
+        - Grep
+        - Skill
+
+# --- MCP only ---
+
+- id: M1
+  layer: 2
+  service: notion
+  description: Create a Notion database with views and properties
+  path: mcp_only
+  scoring: manual
+  expectedOutput: "Database created with multiple properties, at least one filtered view"
+  variants:
+    mcp:
+      prompt: >
+        Create a Notion database called "Benchmark Results" under page
+        {{NOTION_TEST_PAGE_ID}} with these properties:
+        - Task ID (title)
+        - Service (select: notion, slack, github, postgres)
+        - Variant (select: cli, mcp)
+        - Cost USD (number)
+        - Accuracy (number, 0-100)
+        - Status (status)
+        Then create a view filtered to show only "notion" service tasks.
+      allowedTools:
+        - "mcp__claude_ai_Notion__notion-create-database"
+        - "mcp__claude_ai_Notion__notion-create-view"
+        - "mcp__claude_ai_Notion__notion-update-view"
+
+- id: M2
+  layer: 2
+  service: slack
+  description: Send a Slack message draft for approval
+  path: mcp_only
+  scoring: manual
+  expectedOutput: "Draft message sent with preview, awaiting approval workflow"
+  variants:
+    mcp:
+      prompt: >
+        Draft a message to {{SLACK_TEST_CHANNEL_ID}} summarizing the benchmark
+        results: "CLI+Skills vs MCP benchmark complete. Key findings:
+        CLI cheaper for simple API calls, MCP faster for complex platform ops."
+        Send it as a draft for review, not a direct post.
+      allowedTools:
+        - "mcp__claude_ai_Slack__slack_send_message_draft"
+
+- id: M3
+  layer: 2
+  service: notion
+  description: Cross-reference Slack thread and create Notion summary page
+  path: mcp_only
+  scoring: manual
+  expectedOutput: "Notion page created with content sourced from Slack thread"
+  variants:
+    mcp:
+      prompt: >
+        Read the Slack thread at channel {{SLACK_TEST_CHANNEL_ID}} with
+        thread timestamp {{SLACK_TEST_THREAD_TS}}. Summarize the discussion.
+        Then create a new Notion page under {{NOTION_TEST_PAGE_ID}} titled
+        "Thread Summary — {{RUN_ID}}" with the summary as the page content.
+      allowedTools:
+        - "mcp__claude_ai_Slack__slack_read_thread"
+        - "mcp__claude_ai_Notion__notion-create-pages"
