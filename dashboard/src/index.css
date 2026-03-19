@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+/* --- Editorial serif for headlines --- */
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('https://fonts.gstatic.com/s/instrumentserif/v4/jizBRFtNs2ka5fCjHlCt0Ca1TSzKICdX.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('https://fonts.gstatic.com/s/instrumentserif/v4/jizHRFtNs2ka5fCjHlCt0Ca1jz2KMXiO.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+}
+
+/* --- Clean sans for body --- */
 @font-face {
   font-family: 'Geist';
   src: url('https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/Geist-Regular.woff2') format('woff2');
@@ -33,21 +48,32 @@
 
 @theme {
   --font-sans: 'Geist', system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
   --font-mono: 'Geist Mono', monospace;
-  --color-surface: #0a0a0c;
-  --color-surface-raised: #111114;
-  --color-surface-overlay: #18181c;
-  --color-border-subtle: #1e1e24;
-  --color-border: #2a2a32;
-  --color-text-muted: #6b6b7b;
-  --color-text-secondary: #9b9bab;
-  --color-text-primary: #e8e8ed;
-  --color-cli: #f97316;
-  --color-cli-muted: #f9731633;
-  --color-mcp: #06b6d4;
-  --color-mcp-muted: #06b6d433;
-  --color-win: #22c55e;
-  --color-win-muted: #22c55e1a;
+
+  /* Cream palette */
+  --color-surface: #FAF7F2;
+  --color-surface-raised: #FFFFFF;
+  --color-surface-overlay: #F2EDE5;
+  --color-border-subtle: #E8E0D4;
+  --color-border: #D4C9B8;
+  --color-text-muted: #9B8E7B;
+  --color-text-secondary: #6B5D4D;
+  --color-text-primary: #1A1612;
+
+  /* CLI = warm amber/terracotta */
+  --color-cli: #C2410C;
+  --color-cli-muted: #C2410C1A;
+
+  /* MCP = Rolex green */
+  --color-mcp: #006039;
+  --color-mcp-muted: #0060391A;
+
+  --color-win: #006039;
+  --color-win-muted: #0060391A;
+
+  /* Accent for highlights */
+  --color-accent: #92400E;
 }
 
 body {
@@ -56,6 +82,14 @@ body {
   color: var(--color-text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Editorial headline class */
+.editorial-heading {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
 /* Recharts overrides */

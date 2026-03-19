@@ -1,4 +1,3 @@
-import { readFileSync } from "fs";
 import { resolve } from "path";
 import { config as loadDotenv } from "dotenv";
 

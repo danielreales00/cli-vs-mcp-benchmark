@@ -89,8 +89,8 @@ async function runSdkTask(
     for await (const message of query({ prompt, options })) {
       const msg = message as SDKMessage;
 
-      if (msg.type === "system" && (msg as SDKSystemMessage).subtype === "init") {
-        const sysMsg = msg as SDKSystemMessage;
+      const sysMsg = msg as SDKSystemMessage;
+      if (msg.type === "system" && sysMsg.subtype === "init") {
         steps.push({
           type: "system_init",
           timestamp: Date.now(),

@@ -41,49 +41,47 @@ export const taskMeta: TaskMeta[] = [
   { id: "M3", layer: 2, service: "notion", description: "Cross-reference Slack + Notion", path: "mcp_only" },
 ];
 
-// Layer 1 results (run: mmpma7or)
+// Layer 1 results (run: mmpoarhv)
 export const layer1Results: TaskResult[] = [
-  {"taskId":"N1","variant":"cli","pass":1,"output":"","usage":{"inputTokens":4,"outputTokens":451,"cacheReadTokens":46025,"cacheCreationTokens":12392,"totalCostUsd":0.1118},"toolCalls":[],"durationMs":24428,"success":true},
-  {"taskId":"N1","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":260,"cacheReadTokens":53554,"cacheCreationTokens":5733,"totalCostUsd":0.0691},"toolCalls":[],"durationMs":13028,"success":true},
-  {"taskId":"N2","variant":"cli","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":599,"cacheReadTokens":90593,"cacheCreationTokens":5295,"totalCostUsd":0.0934},"toolCalls":[],"durationMs":28183,"success":true},
-  {"taskId":"N2","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":277,"cacheReadTokens":52483,"cacheCreationTokens":4531,"totalCostUsd":0.0615},"toolCalls":[],"durationMs":16186,"success":true},
-  {"taskId":"N3","variant":"cli","pass":1,"output":"","usage":{"inputTokens":18,"outputTokens":2675,"cacheReadTokens":344055,"cacheCreationTokens":9428,"totalCostUsd":0.2979},"toolCalls":[],"durationMs":94149,"success":true},
-  {"taskId":"N3","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":300,"cacheReadTokens":54808,"cacheCreationTokens":6622,"totalCostUsd":0.0763},"toolCalls":[],"durationMs":18646,"success":true},
-  {"taskId":"N4","variant":"cli","pass":1,"output":"","usage":{"inputTokens":9,"outputTokens":1385,"cacheReadTokens":151117,"cacheCreationTokens":6793,"totalCostUsd":0.1527},"toolCalls":[],"durationMs":56939,"success":true},
-  {"taskId":"N4","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":9,"outputTokens":983,"cacheReadTokens":126619,"cacheCreationTokens":9578,"totalCostUsd":0.1478},"toolCalls":[],"durationMs":56094,"success":true},
-  {"taskId":"S1","variant":"cli","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":924,"cacheReadTokens":90463,"cacheCreationTokens":5528,"totalCostUsd":0.1029},"toolCalls":[],"durationMs":34538,"success":true},
-  {"taskId":"S1","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":689,"cacheReadTokens":52307,"cacheCreationTokens":5084,"totalCostUsd":0.0752},"toolCalls":[],"durationMs":24027,"success":true},
-  {"taskId":"S2","variant":"cli","pass":1,"output":"","usage":{"inputTokens":14,"outputTokens":1595,"cacheReadTokens":260456,"cacheCreationTokens":7768,"totalCostUsd":0.2187},"toolCalls":[],"durationMs":73181,"success":true},
-  {"taskId":"S2","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":540,"cacheReadTokens":52319,"cacheCreationTokens":5091,"totalCostUsd":0.0715},"toolCalls":[],"durationMs":17730,"success":true},
-  {"taskId":"S3","variant":"cli","pass":1,"output":"","usage":{"inputTokens":9,"outputTokens":777,"cacheReadTokens":149393,"cacheCreationTokens":5231,"totalCostUsd":0.1269},"toolCalls":[],"durationMs":37124,"success":true},
-  {"taskId":"S3","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":7,"outputTokens":394,"cacheReadTokens":72250,"cacheCreationTokens":5047,"totalCostUsd":0.0776},"toolCalls":[],"durationMs":24687,"success":true},
-  {"taskId":"S4","variant":"cli","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":732,"cacheReadTokens":93188,"cacheCreationTokens":5561,"totalCostUsd":0.0997},"toolCalls":[],"durationMs":36061,"success":true},
-  {"taskId":"S4","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":7,"outputTokens":514,"cacheReadTokens":72564,"cacheCreationTokens":5107,"totalCostUsd":0.0811},"toolCalls":[],"durationMs":24895,"success":true},
-  {"taskId":"G1","variant":"cli","pass":1,"output":"","usage":{"inputTokens":3,"outputTokens":218,"cacheReadTokens":33412,"cacheCreationTokens":3787,"totalCostUsd":0.0458},"toolCalls":[],"durationMs":19808,"success":true},
-  {"taskId":"G1","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":349,"cacheReadTokens":52325,"cacheCreationTokens":4549,"totalCostUsd":0.0633},"toolCalls":[],"durationMs":14867,"success":true},
-  {"taskId":"G2","variant":"cli","pass":1,"output":"","usage":{"inputTokens":3,"outputTokens":229,"cacheReadTokens":33413,"cacheCreationTokens":3689,"totalCostUsd":0.0455},"toolCalls":[],"durationMs":15660,"success":true},
-  {"taskId":"G2","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":479,"cacheReadTokens":49082,"cacheCreationTokens":8252,"totalCostUsd":0.0881},"toolCalls":[],"durationMs":16034,"success":true},
-  {"taskId":"G3","variant":"cli","pass":1,"output":"","usage":{"inputTokens":3,"outputTokens":153,"cacheReadTokens":33423,"cacheCreationTokens":3589,"totalCostUsd":0.0430},"toolCalls":[],"durationMs":18738,"success":true},
-  {"taskId":"G3","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":322,"cacheReadTokens":52431,"cacheCreationTokens":4246,"totalCostUsd":0.0608},"toolCalls":[],"durationMs":14397,"success":true},
-  {"taskId":"G4","variant":"cli","pass":1,"output":"","usage":{"inputTokens":3,"outputTokens":202,"cacheReadTokens":33411,"cacheCreationTokens":3593,"totalCostUsd":0.0442},"toolCalls":[],"durationMs":14013,"success":true},
-  {"taskId":"G4","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":428,"cacheReadTokens":52479,"cacheCreationTokens":4507,"totalCostUsd":0.0651},"toolCalls":[],"durationMs":15129,"success":true},
-  {"taskId":"P1","variant":"cli","pass":1,"output":"","usage":{"inputTokens":3,"outputTokens":245,"cacheReadTokens":33404,"cacheCreationTokens":3665,"totalCostUsd":0.0457},"toolCalls":[],"durationMs":12175,"success":true},
-  {"taskId":"P1","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":7,"outputTokens":739,"cacheReadTokens":111135,"cacheCreationTokens":5176,"totalCostUsd":0.1064},"toolCalls":[],"durationMs":26097,"success":true},
-  {"taskId":"P2","variant":"cli","pass":1,"output":"","usage":{"inputTokens":3,"outputTokens":138,"cacheReadTokens":33425,"cacheCreationTokens":3566,"totalCostUsd":0.0425},"toolCalls":[],"durationMs":12510,"success":true},
-  {"taskId":"P2","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":9,"outputTokens":1001,"cacheReadTokens":147227,"cacheCreationTokens":4755,"totalCostUsd":0.1284},"toolCalls":[],"durationMs":27578,"success":true},
-  {"taskId":"P3","variant":"cli","pass":1,"output":"","usage":{"inputTokens":4,"outputTokens":269,"cacheReadTokens":52040,"cacheCreationTokens":3985,"totalCostUsd":0.0577},"toolCalls":[],"durationMs":14657,"success":true},
-  {"taskId":"P3","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":401,"outputTokens":1693,"cacheReadTokens":200461,"cacheCreationTokens":8403,"totalCostUsd":0.1971},"toolCalls":[],"durationMs":54145,"success":true},
+  {"taskId":"N1","variant":"cli","pass":1,"output":"","usage":{"inputTokens":11,"outputTokens":1864,"cacheReadTokens":203035,"cacheCreationTokens":19210,"totalCostUsd":0.2682},"toolCalls":[],"durationMs":70363,"success":true},
+  {"taskId":"N1","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":32,"outputTokens":4167,"cacheReadTokens":640669,"cacheCreationTokens":37533,"totalCostUsd":0.6593},"toolCalls":[],"durationMs":141102,"success":true},
+  {"taskId":"N2","variant":"cli","pass":1,"output":"","usage":{"inputTokens":11,"outputTokens":4261,"cacheReadTokens":255382,"cacheCreationTokens":26892,"totalCostUsd":0.4023},"toolCalls":[],"durationMs":103910,"success":true},
+  {"taskId":"N2","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":927,"outputTokens":1189,"cacheReadTokens":131266,"cacheCreationTokens":11977,"totalCostUsd":0.1748},"toolCalls":[],"durationMs":42460,"success":true},
+  {"taskId":"S1","variant":"cli","pass":1,"output":"","usage":{"inputTokens":16,"outputTokens":2599,"cacheReadTokens":330309,"cacheCreationTokens":11013,"totalCostUsd":0.2990},"toolCalls":[],"durationMs":91974,"success":true},
+  {"taskId":"S1","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":8,"outputTokens":1786,"cacheReadTokens":97161,"cacheCreationTokens":8041,"totalCostUsd":0.1435},"toolCalls":[],"durationMs":39558,"success":true},
+  {"taskId":"S2","variant":"cli","pass":1,"output":"","usage":{"inputTokens":8,"outputTokens":1006,"cacheReadTokens":131563,"cacheCreationTokens":5677,"totalCostUsd":0.1265},"toolCalls":[],"durationMs":39660,"success":true},
+  {"taskId":"S2","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":7,"outputTokens":769,"cacheReadTokens":72856,"cacheCreationTokens":5352,"totalCostUsd":0.0891},"toolCalls":[],"durationMs":29669,"success":true},
+  {"taskId":"G1","variant":"cli","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":863,"cacheReadTokens":91878,"cacheCreationTokens":4850,"totalCostUsd":0.0979},"toolCalls":[],"durationMs":33278,"success":true},
+  {"taskId":"G1","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":10,"outputTokens":1184,"cacheReadTokens":93635,"cacheCreationTokens":6339,"totalCostUsd":0.1161},"toolCalls":[],"durationMs":29249,"success":true},
+  {"taskId":"G2","variant":"cli","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":1220,"cacheReadTokens":93770,"cacheCreationTokens":5793,"totalCostUsd":0.1136},"toolCalls":[],"durationMs":42729,"success":true},
+  {"taskId":"G2","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":7,"outputTokens":1462,"cacheReadTokens":76793,"cacheCreationTokens":8767,"totalCostUsd":0.1298},"toolCalls":[],"durationMs":34551,"success":true},
+  {"taskId":"P1","variant":"cli","pass":1,"output":"","usage":{"inputTokens":4,"outputTokens":493,"cacheReadTokens":52640,"cacheCreationTokens":4458,"totalCostUsd":0.0665},"toolCalls":[],"durationMs":18588,"success":true},
+  {"taskId":"P1","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":14,"outputTokens":1769,"cacheReadTokens":253192,"cacheCreationTokens":6030,"totalCostUsd":0.3244},"toolCalls":[],"durationMs":66984,"success":true},
+  {"taskId":"P2","variant":"cli","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":1162,"cacheReadTokens":92220,"cacheCreationTokens":6039,"totalCostUsd":0.1129},"toolCalls":[],"durationMs":34548,"success":true},
+  {"taskId":"P2","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":85,"outputTokens":1797,"cacheReadTokens":283558,"cacheCreationTokens":7439,"totalCostUsd":0.2336},"toolCalls":[],"durationMs":53075,"success":true},
 ];
 
-// Layer 2 results (run: mmpma7or)
+// Layer 2 results (run: mmpoarhv)
 export const layer2Results: TaskResult[] = [
-  {"taskId":"C1","variant":"cli","pass":1,"output":"","usage":{"inputTokens":4246,"outputTokens":1127,"cacheReadTokens":118402,"cacheCreationTokens":9062,"totalCostUsd":0.1652},"toolCalls":[],"durationMs":36937,"success":true},
-  {"taskId":"C2","variant":"cli","pass":1,"output":"","usage":{"inputTokens":7,"outputTokens":1230,"cacheReadTokens":65720,"cacheCreationTokens":11412,"totalCostUsd":0.1350},"toolCalls":[],"durationMs":40021,"success":true},
-  {"taskId":"C3","variant":"cli","pass":1,"output":"","usage":{"inputTokens":8,"outputTokens":1062,"cacheReadTokens":90502,"cacheCreationTokens":4873,"totalCostUsd":0.1023},"toolCalls":[],"durationMs":37915,"success":true},
-  {"taskId":"C4","variant":"cli","pass":1,"output":"","usage":{"inputTokens":281,"outputTokens":10815,"cacheReadTokens":733913,"cacheCreationTokens":34841,"totalCostUsd":1.2318},"toolCalls":[],"durationMs":292171,"success":true},
-  {"taskId":"M1","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":7,"outputTokens":655,"cacheReadTokens":69852,"cacheCreationTokens":13727,"totalCostUsd":0.1371},"toolCalls":[],"durationMs":42875,"success":true},
-  {"taskId":"M2","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":272,"cacheReadTokens":52686,"cacheCreationTokens":4499,"totalCostUsd":0.0613},"toolCalls":[],"durationMs":15098,"success":true},
-  {"taskId":"M3","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":10,"outputTokens":913,"cacheReadTokens":103086,"cacheCreationTokens":9174,"totalCostUsd":0.1318},"toolCalls":[],"durationMs":42916,"success":true},
+  {"taskId":"C1","variant":"cli","pass":1,"output":"","usage":{"inputTokens":10,"outputTokens":1425,"cacheReadTokens":240779,"cacheCreationTokens":23913,"totalCostUsd":0.3055},"toolCalls":[],"durationMs":51750,"success":true},
+  {"taskId":"C2","variant":"cli","pass":1,"output":"","usage":{"inputTokens":7,"outputTokens":1249,"cacheReadTokens":65816,"cacheCreationTokens":11432,"totalCostUsd":0.1356},"toolCalls":[],"durationMs":39963,"success":true},
+  {"taskId":"C3","variant":"cli","pass":1,"output":"","usage":{"inputTokens":7,"outputTokens":895,"cacheReadTokens":71375,"cacheCreationTokens":4300,"totalCostUsd":0.0850},"toolCalls":[],"durationMs":35445,"success":true},
+  {"taskId":"C4","variant":"cli","pass":1,"output":"","usage":{"inputTokens":1220,"outputTokens":8234,"cacheReadTokens":709149,"cacheCreationTokens":47661,"totalCostUsd":1.1046},"toolCalls":[],"durationMs":193444,"success":true},
+  {"taskId":"M1","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":7,"outputTokens":707,"cacheReadTokens":69889,"cacheCreationTokens":13744,"totalCostUsd":0.1386},"toolCalls":[],"durationMs":26837,"success":true},
+  {"taskId":"M2","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":6,"outputTokens":282,"cacheReadTokens":52701,"cacheCreationTokens":4502,"totalCostUsd":0.0616},"toolCalls":[],"durationMs":13241,"success":true},
+  {"taskId":"M3","variant":"mcp","pass":1,"output":"","usage":{"inputTokens":7,"outputTokens":772,"cacheReadTokens":77753,"cacheCreationTokens":7833,"totalCostUsd":0.1072},"toolCalls":[],"durationMs":25158,"success":true},
+];
+
+// Hinted CLI results (run: mmwxo7de — CLI with accurate cheatsheets, equivalent to CLAUDE.md)
+export const hintedCliResults: TaskResult[] = [
+  {"taskId":"N1","variant":"cli","pass":1,"output":"","usage":{"inputTokens":16,"outputTokens":2638,"cacheReadTokens":330704,"cacheCreationTokens":19730,"totalCostUsd":0.3547},"toolCalls":[],"durationMs":113591,"success":true},
+  {"taskId":"N2","variant":"cli","pass":1,"output":"","usage":{"inputTokens":9,"outputTokens":2813,"cacheReadTokens":263886,"cacheCreationTokens":28370,"totalCostUsd":0.3796},"toolCalls":[],"durationMs":74509,"success":true},
+  {"taskId":"S1","variant":"cli","pass":1,"output":"","usage":{"inputTokens":12,"outputTokens":2044,"cacheReadTokens":236603,"cacheCreationTokens":9496,"totalCostUsd":0.2288},"toolCalls":[],"durationMs":71318,"success":true},
+  {"taskId":"S2","variant":"cli","pass":1,"output":"","usage":{"inputTokens":4,"outputTokens":387,"cacheReadTokens":51271,"cacheCreationTokens":3886,"totalCostUsd":0.0596},"toolCalls":[],"durationMs":20929,"success":true},
+  {"taskId":"G1","variant":"cli","pass":1,"output":"","usage":{"inputTokens":4,"outputTokens":642,"cacheReadTokens":51808,"cacheCreationTokens":4679,"totalCostUsd":0.0712},"toolCalls":[],"durationMs":31476,"success":true},
+  {"taskId":"G2","variant":"cli","pass":1,"output":"","usage":{"inputTokens":4,"outputTokens":1018,"cacheReadTokens":55014,"cacheCreationTokens":8157,"totalCostUsd":0.1040},"toolCalls":[],"durationMs":26339,"success":true},
+  {"taskId":"P1","variant":"cli","pass":1,"output":"","usage":{"inputTokens":9,"outputTokens":963,"cacheReadTokens":143353,"cacheCreationTokens":4363,"totalCostUsd":0.1231},"toolCalls":[],"durationMs":45209,"success":true},
+  {"taskId":"P2","variant":"cli","pass":1,"output":"","usage":{"inputTokens":9,"outputTokens":904,"cacheReadTokens":143181,"cacheCreationTokens":4291,"totalCostUsd":0.1211},"toolCalls":[],"durationMs":34043,"success":true},
 ];
 
 // Per-task context overhead: total context tokens loaded (input + cache read + cache create)
@@ -91,6 +89,18 @@ export function contextTokens(r: TaskResult): number {
   return (r.usage.inputTokens ?? 0)
     + (r.usage.cacheReadTokens ?? 0)
     + (r.usage.cacheCreationTokens ?? 0);
+}
+
+// Three-way comparison: baseline CLI vs hinted CLI vs MCP
+export function getScenarioComparison() {
+  const taskIds = [...new Set(layer1Results.map((r) => r.taskId))];
+  return taskIds.map((id) => {
+    const meta = taskMeta.find((t) => t.id === id)!;
+    const baseCli = layer1Results.find((r) => r.taskId === id && r.variant === "cli");
+    const mcp = layer1Results.find((r) => r.taskId === id && r.variant === "mcp");
+    const hintedCli = hintedCliResults.find((r) => r.taskId === id);
+    return { meta, baseCli, mcp, hintedCli };
+  });
 }
 
 // Derived data helpers

@@ -34,15 +34,7 @@ for (const result of results) {
   if (!task) continue;
 
   if (task.scoring === "deterministic") {
-    // Basic deterministic scoring:
-    // - success = 1.0 (task completed without error)
-    // - failure = 0.0
-    // - output contains expected indicators = partial credit
-    if (result.success) {
-      result.score = 1.0;
-    } else {
-      result.score = 0.0;
-    }
+    result.score = result.success ? 1.0 : 0.0;
   } else {
     // Manual scoring not yet implemented — leave score undefined
     result.score = undefined;

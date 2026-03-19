@@ -1,0 +1,356 @@
+# ============================================================
+# Layer 1: Head-to-head — CLI with accurate usage hints
+# Same tasks as definitions.yaml but CLI prompts include
+# verified cheatsheets for notion-cli and slack-cli
+# GitHub (gh) and Postgres (psql) need no hints.
+# ============================================================
+
+# --- Notion ---
+
+- id: N1
+  layer: 1
+  service: notion
+  description: Search DB, read pages, compute stats, create summary page
+  path: both
+  scoring: manual
+  expectedOutput: "Summary page created with computed statistics from database pages"
+  variants:
+    cli:
+      prompt: >
+        Search my Notion workspace for the database called "Benchmark Test DB".
+        Read all pages in that database. For each page, extract the "Value" property
+        (it's a number). Compute the average, min, max, and count of all values.
+        Then create a new page under {{NOTION_TEST_PAGE_ID}} titled
+        "Stats Summary — {{RUN_ID}}" with the computed statistics as the page content,
+        formatted as a bulleted list.
+        Use the `notion-cli` tool. The NOTION_API_KEY env var is already set.
+        Do NOT use any MCP tools.
+
+        notion-cli cheatsheet:
+          notion-cli search -q "query" -o compact-json
+            → {"success":true,"data":{"results":[{"id":"...","object":"page"|"database","properties":{...}}]}}
+          notion-cli db query <db-id> --page-all --select "Name,Value" -o compact-json
+            → {"success":true,"data":{"results":[{"id":"...","properties":{"Name":{"title":[{"plain_text":"..."}]},"Value":{"number":123}}}]}}
+          notion-cli page create -p <parent-page-id> --title "My Title" --properties '{"Name":{"title":[{"text":{"content":"title"}}]}}'
+            → Use -p for parent page, -d for parent database
+            → For body content use --file-path with a temp markdown file
+          All outputs are JSON. Extract values with jq: .data.results[].properties.Value.number
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Search my Notion workspace for the database called "Benchmark Test DB".
+        Read all pages in that database. For each page, extract the "Value" property
+        (it's a number). Compute the average, min, max, and count of all values.
+        Then create a new page under {{NOTION_TEST_PAGE_ID}} titled
+        "Stats Summary — {{RUN_ID}}" with the computed statistics as the page content,
+        formatted as a bulleted list.
+      allowedTools:
+        - "mcp__claude_ai_Notion__notion-search"
+        - "mcp__claude_ai_Notion__notion-fetch"
+        - "mcp__claude_ai_Notion__notion-create-pages"
+
+- id: N2
+  layer: 1
+  service: notion
+  description: Read page content, create database from extracted data
+  path: both
+  scoring: manual
+  expectedOutput: "New database created with rows derived from page content"
+  variants:
+    cli:
+      prompt: >
+        Read the Notion page {{NOTION_TEST_PAGE_ID}} and all its child pages.
+        Collect the titles and any content from each child page.
+        Then create a new Notion database called "Page Index — {{RUN_ID}}"
+        under {{NOTION_TEST_PAGE_ID}} with these properties:
+        - Page Title (title)
+        - Has Content (checkbox — true if the page had any text content)
+        - Source (select — set to "automated")
+        Add one row for each child page you found.
+        Use the `notion-cli` tool. The NOTION_API_KEY env var is already set.
+        Do NOT use any MCP tools.
+
+        notion-cli cheatsheet:
+          notion-cli page retrieve <page-id> -o compact-json
+            → Returns page with properties. Use --max-depth 1 to include children list.
+          notion-cli block children <page-id> -o compact-json
+            → Lists child blocks. Child pages appear as {"type":"child_page","child_page":{"title":"..."}}
+            → Child databases appear as {"type":"child_database"}
+          notion-cli db create <parent-page-id> --title "DB Name" -o compact-json
+            → Creates an empty database. Returns {"success":true,"data":{"id":"new-db-id",...}}
+            → Properties must be added separately or the DB will only have a title column.
+          notion-cli page create -d <database-id> --properties '<json>' -o compact-json
+            → Adds a row. Property JSON example:
+              '{"Page Title":{"title":[{"text":{"content":"My Page"}}]},"Has Content":{"checkbox":true},"Source":{"select":{"name":"automated"}}}'
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Read the Notion page {{NOTION_TEST_PAGE_ID}} and all its child pages.
+        Collect the titles and any content from each child page.
+        Then create a new Notion database called "Page Index — {{RUN_ID}}"
+        under {{NOTION_TEST_PAGE_ID}} with these properties:
+        - Page Title (title)
+        - Has Content (checkbox — true if the page had any text content)
+        - Source (select — set to "automated")
+        Add one row for each child page you found.
+      allowedTools:
+        - "mcp__claude_ai_Notion__notion-fetch"
+        - "mcp__claude_ai_Notion__notion-create-database"
+        - "mcp__claude_ai_Notion__notion-create-pages"
+
+# --- Slack ---
+
+- id: S1
+  layer: 1
+  service: slack
+  description: Read channel, profile each unique user, post activity report
+  path: both
+  scoring: manual
+  expectedOutput: "Activity report posted with per-user message counts and display names"
+  variants:
+    cli:
+      prompt: >
+        Read the full message history of Slack channel {{SLACK_TEST_CHANNEL_ID}}.
+        Group messages by user. For each unique user, get their display name.
+        Then post a formatted activity report to the same channel with the
+        subject line "Channel Activity Report — {{RUN_ID}}" containing:
+        each user's display name, message count, and the timestamp of their
+        most recent message. Sort by message count descending.
+        Use the `slack-cli` tool. The slack-cli profile is already configured.
+        Do NOT use any MCP tools.
+
+        slack-cli cheatsheet:
+          slack-cli history -c <channel-id> -n 100 --format json
+            → {"channel":"C...","messages":[{"ts":"...","timestamp":"2026-...","user":"U...","text":"..."}],"total":N}
+          slack-cli users info --id <user-id> --format json
+            → Returns user profile with display_name, real_name, etc.
+          slack-cli send -c <channel-id> -m "message text"
+            → Sends a message. Returns confirmation with timestamp.
+          User IDs are in the format U0ALNTEK2SG. Extract from history messages with jq: .messages[].user
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Read the full message history of Slack channel {{SLACK_TEST_CHANNEL_ID}}.
+        Group messages by user. For each unique user, get their display name.
+        Then post a formatted activity report to the same channel with the
+        subject line "Channel Activity Report — {{RUN_ID}}" containing:
+        each user's display name, message count, and the timestamp of their
+        most recent message. Sort by message count descending.
+      allowedTools:
+        - "mcp__claude_ai_Slack__slack_read_channel"
+        - "mcp__claude_ai_Slack__slack_read_user_profile"
+        - "mcp__claude_ai_Slack__slack_send_message"
+
+- id: S2
+  layer: 1
+  service: slack
+  description: Read thread, extract action items, post follow-up
+  path: both
+  scoring: manual
+  expectedOutput: "Follow-up message posted listing extracted action items and unanswered questions"
+  variants:
+    cli:
+      prompt: >
+        Read the Slack thread at channel {{SLACK_TEST_CHANNEL_ID}} with thread
+        timestamp {{SLACK_TEST_THREAD_TS}}. Analyze the conversation to identify:
+        1. Any questions that were asked but not answered
+        2. Any action items or commitments mentioned
+        3. The overall topic of discussion
+        Then post a new message to {{SLACK_TEST_CHANNEL_ID}} with the subject
+        "Thread Follow-up — {{RUN_ID}}" containing a structured summary with
+        sections for Topic, Unanswered Questions, and Action Items.
+        Use the `slack-cli` tool. The slack-cli profile is already configured.
+        Do NOT use any MCP tools.
+
+        slack-cli cheatsheet:
+          slack-cli history -c <channel-id> -t <thread-ts> --format json
+            → {"channel":"C...","messages":[{"ts":"...","user":"U...","text":"..."}],"total":N}
+            → Use -t to get thread replies (parent message + all replies)
+          slack-cli send -c <channel-id> -m "message text"
+            → Sends a message to the channel.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Read the Slack thread at channel {{SLACK_TEST_CHANNEL_ID}} with thread
+        timestamp {{SLACK_TEST_THREAD_TS}}. Analyze the conversation to identify:
+        1. Any questions that were asked but not answered
+        2. Any action items or commitments mentioned
+        3. The overall topic of discussion
+        Then post a new message to {{SLACK_TEST_CHANNEL_ID}} with the subject
+        "Thread Follow-up — {{RUN_ID}}" containing a structured summary with
+        sections for Topic, Unanswered Questions, and Action Items.
+      allowedTools:
+        - "mcp__claude_ai_Slack__slack_read_thread"
+        - "mcp__claude_ai_Slack__slack_send_message"
+
+# --- GitHub (no hints needed — gh is well-known) ---
+
+- id: G1
+  layer: 1
+  service: github
+  description: Audit issues — categorize, count, create triage summary
+  path: both
+  scoring: manual
+  expectedOutput: "Triage issue created with categorized counts and recommended actions"
+  variants:
+    cli:
+      prompt: >
+        In the repo {{GITHUB_TEST_REPO}}, list all open issues.
+        Categorize them by label (group issues sharing the same label).
+        For each category, count the issues and note the oldest one.
+        Then create a new issue titled "Issue Triage — {{RUN_ID}}" with label
+        "triage" containing a markdown table with columns:
+        Label, Count, Oldest Issue (#number), and Recommended Action
+        (suggest "close" if older than 7 days, "review" otherwise).
+        Use the gh CLI tool. Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        In the repo {{GITHUB_TEST_REPO}}, list all open issues.
+        Categorize them by label (group issues sharing the same label).
+        For each category, count the issues and note the oldest one.
+        Then create a new issue titled "Issue Triage — {{RUN_ID}}" with label
+        "triage" containing a markdown table with columns:
+        Label, Count, Oldest Issue (#number), and Recommended Action
+        (suggest "close" if older than 7 days, "review" otherwise).
+      allowedTools:
+        - "mcp__github__list_issues"
+        - "mcp__github__search_issues"
+        - "mcp__github__issue_write"
+
+- id: G2
+  layer: 1
+  service: github
+  description: Read PR, check related issues, post structured review
+  path: both
+  scoring: manual
+  expectedOutput: "Review comment posted on PR with diff analysis and issue cross-reference"
+  variants:
+    cli:
+      prompt: >
+        In the repo {{GITHUB_TEST_REPO}}, read the diff for PR
+        #{{GITHUB_TEST_PR_NUMBER}}. Also read the PR description and any
+        linked or referenced issues. Then create a new issue titled
+        "PR Review — #{{GITHUB_TEST_PR_NUMBER}} — {{RUN_ID}}" with label
+        "review" containing:
+        1. A summary of what the PR changes
+        2. Whether the changes align with any open issues
+        3. Code quality observations (naming, structure, potential bugs)
+        4. A verdict: approve, request changes, or needs discussion
+        Use the gh CLI tool. Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        In the repo {{GITHUB_TEST_REPO}}, read the diff for PR
+        #{{GITHUB_TEST_PR_NUMBER}}. Also read the PR description and any
+        linked or referenced issues. Then create a new issue titled
+        "PR Review — #{{GITHUB_TEST_PR_NUMBER}} — {{RUN_ID}}" with label
+        "review" containing:
+        1. A summary of what the PR changes
+        2. Whether the changes align with any open issues
+        3. Code quality observations (naming, structure, potential bugs)
+        4. A verdict: approve, request changes, or needs discussion
+      allowedTools:
+        - "mcp__github__pull_request_read"
+        - "mcp__github__list_issues"
+        - "mcp__github__issue_write"
+
+# --- Postgres (no hints needed — psql is well-known) ---
+
+- id: P1
+  layer: 1
+  service: postgres
+  description: Join tables, aggregate metrics, create summary view
+  path: both
+  scoring: deterministic
+  expectedOutput: "Summary table created with per-item aggregated metrics from joined data"
+  variants:
+    cli:
+      prompt: >
+        Using the database at DATABASE_URL, join the "benchmark_items" and
+        "benchmark_metrics" tables on benchmark_items.name = benchmark_metrics.item_name.
+        For each item, compute: total requests, total errors, error rate
+        (errors/requests as percentage), and average p99 latency.
+        Only include active items. Create a new table called
+        "item_health_{{RUN_ID}}" with these aggregated results.
+        Then query the new table and return the item with the highest error rate.
+        Use psql via bash. Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Join the "benchmark_items" and "benchmark_metrics" tables on
+        benchmark_items.name = benchmark_metrics.item_name.
+        For each item, compute: total requests, total errors, error rate
+        (errors/requests as percentage), and average p99 latency.
+        Only include active items. Create a new table called
+        "item_health_{{RUN_ID}}" with these aggregated results.
+        Then query the new table and return the item with the highest error rate.
+      allowedTools:
+        - "mcp__postgres__execute_sql"
+
+- id: P2
+  layer: 1
+  service: postgres
+  description: Analyze schema, detect data quality issues, generate report
+  path: both
+  scoring: manual
+  expectedOutput: "Report table created with data quality findings across all tables"
+  variants:
+    cli:
+      prompt: >
+        Using the database at DATABASE_URL, inspect the schema of all tables
+        in the public schema. For each table and column, check:
+        1. How many NULL values exist
+        2. How many duplicate values exist (for non-PK columns)
+        3. The total row count
+        Create a report table called "data_quality_{{RUN_ID}}" with columns:
+        table_name, column_name, total_rows, null_count, null_pct, duplicate_count.
+        Populate it with findings for all columns across all tables.
+        Then query the report to show which columns have the highest null percentage.
+        Use psql via bash. Do NOT use any MCP tools.
+      allowedTools:
+        - Bash
+        - Read
+      disallowedTools:
+        - "mcp__*"
+    mcp:
+      prompt: >
+        Inspect the schema of all tables in the public schema. For each table
+        and column, check:
+        1. How many NULL values exist
+        2. How many duplicate values exist (for non-PK columns)
+        3. The total row count
+        Create a report table called "data_quality_{{RUN_ID}}" with columns:
+        table_name, column_name, total_rows, null_count, null_pct, duplicate_count.
+        Populate it with findings for all columns across all tables.
+        Then query the report to show which columns have the highest null percentage.
+      allowedTools:
+        - "mcp__postgres__execute_sql"

@@ -23,117 +23,124 @@ interface Example {
 
 const examples: Example[] = [
   {
-    taskId: "N3",
+    taskId: "N2",
     service: "notion",
-    description: "Create a new page in a database",
-    prompt: 'Create a new page in Notion database with the title "Benchmark Run" and a Status property set to "In Progress". Return the new page ID.',
+    description: "Read page tree, create database from extracted data",
+    prompt: "Read a Notion page and all its child pages. Collect titles and content. Create a new database with a row for each child page including title, whether it has content, and source.",
     cli: {
-      output: `Page created successfully.
+      output: `Done. Here's the summary:
 
-New page ID: 3234c4dc-1280-814e-a2fb-ff067ccf6b36
+Parent page: "Benchmark Test Page" — 5 children found (3 child pages, 2 child databases)
 
-Note: The database didn't have a Status property, so I added one as a select type (Notion's status type can't be created via the API). The property has options: Not Started, In Progress, and Done — set to "In Progress" as requested.`,
-      cost: "$0.298",
-      duration: "94.1s",
-      tokens: 2675,
+Database created: "Page Index — mmpoarhv"
+
+Rows added:
+
+| Page Title | Has Content | Source |
+|---|---|---|
+| Benchmark Results | No | automated |
+| Thread Summary — mmpksxmi | Yes | automated |
+| Thread Summary — mmpma7or | Yes | automated |`,
+      cost: "$0.402",
+      duration: "103.9s",
+      tokens: 4261,
     },
     mcp: {
-      output: `Page created. The new page ID is 3234c4dc-1280-8163-aab1-fdb137dfa480.`,
-      cost: "$0.076",
-      duration: "18.6s",
-      tokens: 300,
+      output: `Done. Here's what I did:
+
+1. Read the parent page "Benchmark Test Page" and found 3 child pages
+2. Fetched each child page — all 3 had text content:
+   - Thread Summary — mmpksxmi
+   - Thread Summary — mmpma7or
+   - Stats Summary — mmpoarhv
+3. Created database "Page Index — mmpoarhv" with 3 rows`,
+      cost: "$0.175",
+      duration: "42.5s",
+      tokens: 1189,
     },
-    verdict: "MCP wins 3.9x cheaper — CLI spent 18 turns discovering notion-cli subcommands, parsing JSON output, adding a missing property",
+    verdict: "MCP wins 2.3x cheaper — structured create-database and create-pages calls vs CLI discovering notion-cli subcommands across 11 turns",
     verdictColor: "mcp",
   },
   {
-    taskId: "S2",
+    taskId: "S1",
     service: "slack",
-    description: "Read channel and identify most active user",
-    prompt: "Read the message history of a Slack channel. Find which user posted the most messages. Return their user ID, message count, and display name.",
+    description: "Read channel, profile users, post activity report",
+    prompt: "Read a channel's full history, group messages by user, look up each user's display name, then post a formatted activity report sorted by message count.",
     cli: {
-      output: `The CLI only shows user IDs, not display names — the token lacks the users:read scope needed to resolve them. Here's what I can report from the data:
+      output: `Done. The activity report has been posted to #general with the subject line "Channel Activity Report — mmpoarhv".
 
-Most active user in C0AEQT28TQ9:
+Here's what was posted:
 
-| Field | Value |
-|-------|-------|
-| User ID | U0ALNTEK2SG |
-| Message count | 5 |
-| Display name | Unavailable — the slack-cli token lacks users:read scope`,
-      cost: "$0.219",
-      duration: "73.2s",
-      tokens: 1595,
+- U0ALNTEK2SG — 7 messages, last active 2026-03-14 01:07:36
+- U0AEVCN837T — 5 messages, last active 2026-03-14 01:08:01
+- U0AENC4H410 — 1 message, last active 2026-03-13 18:52:34
+
+Note: display names unavailable — slack-cli only returns user IDs.`,
+      cost: "$0.299",
+      duration: "92.0s",
+      tokens: 2599,
     },
     mcp: {
-      output: `Here are the results:
+      output: `Done. The activity report has been posted to #general.
 
-Most messages: CLI Test
-- User ID: U0ALNTEK2SG
-- Message count: 5
-- Display name: CLI Test
-
-Runner-up was Daniel Reales (U0AEVCN837T) with 3 messages, and Juan Andres Velasquez (U0AENC4H410) with 1.`,
-      cost: "$0.072",
-      duration: "17.7s",
-      tokens: 540,
+Summary:
+- cli_test — 8 messages, last active 2026-03-13 21:02:14
+- Daniel Reales — 5 messages, last active 2026-03-13 20:08:01
+- jvelasquez — 1 message, last active 2026-03-13 18:52:34`,
+      cost: "$0.144",
+      duration: "39.6s",
+      tokens: 1786,
     },
-    verdict: "MCP wins 3.1x cheaper — CLI took 14 turns iterating slack-cli commands, couldn't resolve display names",
+    verdict: "MCP wins 2.1x cheaper — slack_read_channel + slack_read_user_profile resolved display names directly. CLI couldn't resolve user IDs and used 341k context tokens vs 105k",
     verdictColor: "mcp",
   },
   {
-    taskId: "G2",
+    taskId: "G1",
     service: "github",
-    description: "Read a PR diff and summarize",
-    prompt: "Read the diff for PR #3. Summarize what changed: which files, what was added, what was removed.",
+    description: "Audit issues, categorize by label, create triage summary",
+    prompt: "List all open issues in a repo. Categorize by label, count per category, note the oldest. Create a triage issue with a markdown table and recommended actions.",
     cli: {
-      output: `**PR #3 Summary:**
+      output: `Done. Here's the summary:
 
-- **Files changed:** 1 — src/utils.ts (new file)
-- **Added:** Two simple utility functions:
-  - add(a, b) — returns the sum of two numbers
-  - multiply(a, b) — returns the product of two numbers
-- **Removed:** Nothing — this is a pure addition.`,
-      cost: "$0.046",
-      duration: "15.7s",
-      tokens: 229,
+- 6 open issues, all labeled "benchmark"
+- Oldest: #1 (created 2026-03-13) — within 7 days, so recommended action is "review"
+- Triage issue created: github.com/.../issues/8`,
+      cost: "$0.098",
+      duration: "33.3s",
+      tokens: 863,
     },
     mcp: {
-      output: `Here's the summary of PR #3:
+      output: `Created #9 with the triage summary.
 
-PR: "Add utility functions" (feature/add-utils → main)
-
-- 1 file added: src/utils.ts (new file, +7 lines)
-- Nothing removed
-
-The new file exports two basic math functions:
-- add(a, b) — returns the sum
-- multiply(a, b) — returns the product`,
-      cost: "$0.088",
-      duration: "16.0s",
-      tokens: 479,
+Recap:
+- benchmark — 6 open issues, oldest is #1 (Mar 13) → review
+- triage — 1 open issue, oldest is #8 (Mar 14) → review
+- All issues are under 7 days old, so none flagged for closure`,
+      cost: "$0.116",
+      duration: "29.2s",
+      tokens: 1184,
     },
-    verdict: "CLI wins — gh is well-known, one-shot execution. MCP used 2x the tokens for the same answer",
+    verdict: "CLI wins 1.2x cheaper — gh list + gh create in a few piped commands. MCP was faster but used more output tokens",
     verdictColor: "cli",
   },
   {
-    taskId: "P2",
+    taskId: "P1",
     service: "postgres",
-    description: "Create a table with schema",
-    prompt: "Create a table with columns: id (serial primary key), name (text), value (numeric), created_at (timestamp default now).",
+    description: "Join tables, aggregate metrics, create summary table",
+    prompt: "Join benchmark_items and benchmark_metrics. Compute per-item total requests, errors, error rate, and avg p99 latency for active items. Create a summary table and find the highest error rate.",
     cli: {
-      output: `Table benchmark_run_mmpma7or created successfully.`,
-      cost: "$0.042",
-      duration: "12.5s",
-      tokens: 138,
+      output: `Table item_health_mmpoarhv created. The item with the highest error rate is beta-api (backend) at 1.51% — 400 errors out of 26,500 requests, with an average p99 latency of 243.57ms.`,
+      cost: "$0.067",
+      duration: "18.6s",
+      tokens: 493,
     },
     mcp: {
-      output: `I need your approval to run the psql command. Could you approve the pending permission prompt so I can create the table?`,
-      cost: "$0.128",
-      duration: "27.6s",
-      tokens: 1001,
+      output: `I see you haven't been approving these commands. Would you like me to instead write the SQL to a .sql file that you can run yourself? Or do you want to approve the psql commands so I can execute them directly?`,
+      cost: "$0.324",
+      duration: "67.0s",
+      tokens: 1769,
     },
-    verdict: "CLI wins 3x cheaper — psql is one-shot, MCP postgres server added multi-turn overhead",
+    verdict: "CLI wins 4.9x cheaper — psql executed the entire JOIN + CREATE TABLE AS in one command. MCP spent 14 turns and 259k context tokens waiting for approvals",
     verdictColor: "cli",
   },
 ];

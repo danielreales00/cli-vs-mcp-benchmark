@@ -60,7 +60,7 @@ export function ServiceBreakdown() {
                     className="h-full rounded-sm transition-all duration-700"
                     style={{
                       width: `${(data.cli / Math.max(data.cli, data.mcp)) * 100}%`,
-                      background: costWinner === "cli" ? "#f97316" : "#f9731666",
+                      background: costWinner === "cli" ? "#C2410C" : "#C2410C66",
                     }}
                   />
                 </div>
@@ -75,7 +75,7 @@ export function ServiceBreakdown() {
                     className="h-full rounded-sm transition-all duration-700"
                     style={{
                       width: `${(data.mcp / Math.max(data.cli, data.mcp)) * 100}%`,
-                      background: costWinner === "mcp" ? "#06b6d4" : "#06b6d466",
+                      background: costWinner === "mcp" ? "#006039" : "#00603966",
                     }}
                   />
                 </div>

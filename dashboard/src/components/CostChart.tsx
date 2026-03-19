@@ -17,12 +17,12 @@ export function CostChart() {
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis
           dataKey="task"
-          tick={{ fill: "#6b6b7b", fontSize: 11 }}
+          tick={{ fill: "#9B8E7B", fontSize: 11 }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
-          tick={{ fill: "#6b6b7b", fontSize: 11 }}
+          tick={{ fill: "#9B8E7B", fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           tickFormatter={(v: number) => `$${v.toFixed(2)}`}
@@ -53,12 +53,12 @@ export function CostChart() {
         />
         <Bar dataKey="cli" radius={[3, 3, 0, 0]} maxBarSize={20}>
           {data.map((d, i) => (
-            <Cell key={i} fill={d.cli <= d.mcp ? "#f97316" : "#f9731666"} />
+            <Cell key={i} fill={d.cli <= d.mcp ? "#C2410C" : "#C2410C66"} />
           ))}
         </Bar>
         <Bar dataKey="mcp" radius={[3, 3, 0, 0]} maxBarSize={20}>
           {data.map((d, i) => (
-            <Cell key={i} fill={d.mcp <= d.cli ? "#06b6d4" : "#06b6d466"} />
+            <Cell key={i} fill={d.mcp <= d.cli ? "#006039" : "#00603966"} />
           ))}
         </Bar>
       </BarChart>

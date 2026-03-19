@@ -23,7 +23,10 @@ let results: TaskResult[];
 try {
   const scored = JSON.parse(readFileSync(scoredPath, "utf-8"));
   results = scored.results;
-} catch {
+} catch (err: unknown) {
+  if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
+    throw err; // re-throw parse errors / permission errors
+  }
   const files = readdirSync(runDir).filter(
     (f) => f.endsWith(".json") && !f.startsWith("_") && !f.includes("_steps")
   );
@@ -38,7 +41,7 @@ const pairs = new Map<string, Pair>();
 
 for (const r of results) {
   const existing = pairs.get(r.taskId) ?? {};
-  existing[r.variant as "cli" | "mcp"] = r;
+  existing[r.variant] = r;
   pairs.set(r.taskId, existing);
 }
 
@@ -98,7 +101,7 @@ for (const [taskId, pair] of pairs) {
   }
 
   lines.push(
-    `| ${taskId} | ${task.service} | ${formatCost(cliCost || undefined, "$0.0000")} | ${formatCost(mcpCost || undefined, "$0.0000")} | ${cliTokens} | ${mcpTokens} | ${cliMs}ms | ${mcpMs}ms | ${winner} |`
+    `| ${taskId} | ${task.service} | ${formatCost(cliCost)} | ${formatCost(mcpCost)} | ${cliTokens} | ${mcpTokens} | ${cliMs}ms | ${mcpMs}ms | ${winner} |`
   );
 }
 

@@ -122,7 +122,7 @@ function runTask(
 // --- Main ---
 
 const filters = parseFilters(process.argv.slice(2));
-const tasks = applyFilters(loadTasks(), filters);
+const tasks = applyFilters(loadTasks(filters.tasks ?? undefined), filters);
 const fixtures = loadFixtures();
 const runId = generateRunId();
 fixtures["RUN_ID"] = runId;

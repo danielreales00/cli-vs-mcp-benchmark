@@ -5,6 +5,7 @@ export interface Filters {
   service: string | null;
   variant: ("cli" | "mcp") | null;
   id: string | null;
+  tasks: string | null;
 }
 
 export function parseFilters(argv: string[]): Filters {
@@ -16,6 +17,7 @@ export function parseFilters(argv: string[]): Filters {
     service: get("--service="),
     variant: get("--variant=") as Filters["variant"],
     id: get("--id="),
+    tasks: get("--tasks="),
   };
 }
 

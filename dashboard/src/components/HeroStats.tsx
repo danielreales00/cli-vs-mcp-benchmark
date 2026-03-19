@@ -54,7 +54,7 @@ export function HeroStats() {
       cli: String(cliWins),
       mcp: String(mcpWins),
       winner: cliWins > mcpWins ? "cli" : "mcp",
-      detail: `${15 - cliWins - mcpWins} ties`,
+      detail: `of ${taskIds.length} tasks`,
     },
   ];
 
